@@ -10,6 +10,14 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 namespace EmployeeCount
 {
+    internal class employeeCountRowData
+    {
+        public string Entity { get; set; }
+
+        public string Store { get; set; }
+
+        public string Name { get; set; }
+    }
     internal class Program
     {
         static void Main(string[] args)
@@ -45,7 +53,7 @@ namespace EmployeeCount
                 southColumnBCleared.Clear();
 
                 targetSouthSheet.Range[$"B2:B{targetSouthSheet.UsedRange.Rows.Count}"].Formula = "=VLOOKUP(A2,Sheet1!F:G,2,0)";
-
+                targetSouthSheet.Cells[targetSouthSheet.UsedRange.Rows.Count, 2].Value = "";
 
                 Excel.Range dateSouthCell = targetSouthSheet.Cells[1, 3];
 
@@ -69,6 +77,7 @@ namespace EmployeeCount
                 northColumnBCleared.Clear();
 
                 targetNorthSheet.Range[$"B2:B{targetNorthSheet.UsedRange.Rows.Count}"].Formula = "=VLOOKUP(A2,Sheet1!F:G,2,0)";
+                targetNorthSheet.Cells[6, 2].Value = "";
 
                 Excel.Range dateNorthCell = targetNorthSheet.Cells[1, 3];
 
@@ -83,106 +92,76 @@ namespace EmployeeCount
                     newDateCell.EntireColumn.AutoFit();
                 }
                 
-
                 Worksheet worksheet = workbook.Worksheets["FFCCHKS"];
                 Worksheet targetSheet1 = targetWorkbook.Worksheets["Sheet1"];
+ 
+                List<employeeCountRowData> ffcchksList = new List<employeeCountRowData>();
+                int ffcchjsLastRow = worksheet.Cells[worksheet.Rows.Count, 1].End[Excel.XlDirection.xlUp].Row;
 
-                Excel.Range worksheetColumnB = worksheet.Columns["B"];
-
-                Dictionary<object, int> valueCounts = new Dictionary<object, int>();
-                List<object> uniqueValues = new List<object>();
-
-                int rowCount = worksheetColumnB.Rows.Count;
-                int currentRow = 1;
-                int nullCount = 0;
-                const int maxNullCount = 10;
-
-                while (currentRow <= rowCount)
+                for (int i = 1; i <= ffcchjsLastRow; i++)
                 {
-                    var cell = worksheetColumnB.Cells[currentRow, 1];
-                    var value = cell.Value2;
+                    string entity = Convert.ToString(worksheet.Cells[i, 1].Value);
+                    string store = Convert.ToString(worksheet.Cells[i, 2].Value);
+                    string name = Convert.ToString(worksheet.Cells[i, 6].Value);
 
-                    if (value == null || value.ToString() == "0" || value.ToString() == "")
+                    if (!string.IsNullOrWhiteSpace(entity) && (entity.Contains("DFG") || entity.Contains("FSH") || entity.Contains("NWSM") || entity.Contains("RCIH") || entity.Contains("SUN")))
                     {
-                        nullCount++;
-
-                        if (nullCount > maxNullCount)
+                        if (!string.IsNullOrWhiteSpace(store) && store != "0")
                         {
-                            break;
+                            employeeCountRowData rowData = new employeeCountRowData
+                            {
+                                Store = store,
+                                Name = name
+                            };
+
+                            ffcchksList.Add(rowData);
                         }
+                    }
+                }
+
+                int sheet1Row =  2;
+                foreach (var data in ffcchksList)
+                {
+                    targetSheet1.Cells[sheet1Row, 1].Value = data.Store;
+                    targetSheet1.Cells[sheet1Row, 2].Value = data.Name;
+                    sheet1Row++;
+                }
+
+                Dictionary<string, int> storeCounts = new Dictionary<string, int>();
+
+                foreach (var data in ffcchksList)
+                {
+                    if (storeCounts.ContainsKey(data.Store))
+                    {
+                        storeCounts[data.Store]++;
                     }
                     else
                     {
-                        nullCount = 0; 
-
-                        if (!uniqueValues.Contains(value))
-                        {
-                            uniqueValues.Add(value);
-                        }
-
-                        if (valueCounts.ContainsKey(value))
-                        {
-                            valueCounts[value]++;
-                        }
-                        else
-                        {
-                            valueCounts[value] = 1;
-                        }
+                        storeCounts[data.Store] = 1;
                     }
-
-                    currentRow++;
                 }
 
-                //foreach (var value in uniqueValues)
-                //{
-                //    Console.WriteLine($"Value: {value}, Count: {valueCounts[value]}");
-                //}
+                Excel.Range clearRange = targetSheet1.Range[targetSheet1.Cells[5, 7], targetSheet1.Cells[targetSheet1.UsedRange.Rows.Count,7]];
+                clearRange.Clear();
 
-                int targetRow = 5; 
-                foreach (var value in uniqueValues)
+                int targetRow = 5;
+                foreach (var pair in storeCounts)
                 {
-                    targetSheet1.Cells[targetRow, 6].Value = value; 
-                    targetSheet1.Cells[targetRow, 7].Value = valueCounts[value]; 
+                    targetSheet1.Cells[targetRow, 6].Value = pair.Key;
+                    targetSheet1.Cells[targetRow, 7].Value = pair.Value;
                     targetRow++;
                 }
+                targetSheet1.Cells[targetRow, 6].Value = "Grand Total";
 
+                int total = storeCounts.Values.Sum();
+                targetSheet1.Cells[targetRow, 7].Value = total;
 
-                var filterEntity = new object[]
-                {
-                    "DFG",
-                    "FSH",
-                    "NWSM",
-                    "RCIH",
-                    "SUN"
-                };
-
-                var filterStore = new object[]
-                {
-                    //uniqueValues
-                   
-                };
-
-                Range worksheetRange = worksheet.Range[worksheet.Cells[1, 1], worksheet.Cells[1, worksheet.UsedRange.Column]];
-
-                worksheetRange.AutoFilter(1, filterEntity, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
-                var filterByEntity = worksheetRange.SpecialCells(XlCellType.xlCellTypeVisible);
-
-                filterByEntity.AutoFilter(2, filterByEntity, XlAutoFilterOperator.xlFilterNoFill, Type.Missing, true);
-                
-                Excel.Range columnA = worksheet.Columns["B:B"];
-                columnA.Copy(Type.Missing);
-
-
-
-                Excel.Range columnB = worksheet.Columns["F:F"];
-                columnB.Copy(Type.Missing);
-
+                PivotTable pivotTable = targetSheet1.PivotTables(1);
+                pivotTable.RefreshTable();
 
                 targetWorkbook.Save();
                 targetWorkbook.Close();
                 workbook.Close();
-               
-
 
             }
             catch (Exception ex)
