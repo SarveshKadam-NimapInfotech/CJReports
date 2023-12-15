@@ -45,6 +45,27 @@ namespace EmployeeCount
             {
                 
                 Worksheet targetSouthSheet = targetWorkbook.Worksheets["South"];
+                
+                int lastRowSouth = targetSouthSheet.UsedRange.Rows.Count;
+
+                List<string> valuesFromSouth = new List<string>();
+
+                for (int i = 2; i <= lastRowSouth; i++)
+                {
+                    Excel.Range cell = targetSouthSheet.Cells[i, 2]; // B column
+                    if (cell.Value != null)
+                    {
+                        if (cell.Value.ToString() == "-2146826246")
+                        {
+                            valuesFromSouth.Add("#N/A");
+                        }
+                        else
+                        {
+                            valuesFromSouth.Add(cell.Value.ToString());
+                        }
+                    }
+                }
+
 
                 Excel.Range southColumnB = targetSouthSheet.Columns["B:B"];
                 southColumnB.Insert(Excel.XlInsertShiftDirection.xlShiftToRight);
@@ -68,7 +89,32 @@ namespace EmployeeCount
                     newDateCell.EntireColumn.AutoFit();
                 }
 
+                for (int i = 2; i < valuesFromSouth.Count + 2; i++)
+                {
+                    Excel.Range cell = targetSouthSheet.Cells[i, 3]; // C column
+                    cell.Value = valuesFromSouth[i - 2];
+                }
+
                 Worksheet targetNorthSheet = targetWorkbook.Worksheets["North"];
+
+                int lastRowNorth = targetNorthSheet.UsedRange.Rows.Count;
+
+                List<string> valuesFromNorth = new List<string>();
+
+                for (int i = 2; i <= lastRowNorth; i++)
+                {
+                    Excel.Range cell = targetNorthSheet.Cells[i, 2]; // B column
+                    
+                    if (cell.Value == null)
+                    {
+                        valuesFromNorth.Add("");
+                    }
+                    else
+                    {
+                        valuesFromNorth.Add(cell.Value.ToString()); 
+                    }
+                    
+                }
 
                 Excel.Range northColumnB = targetNorthSheet.Columns["B:B"];
                 northColumnB.Insert(Excel.XlInsertShiftDirection.xlShiftToRight);
@@ -91,7 +137,14 @@ namespace EmployeeCount
                     newDateCell.Font.Bold = true;
                     newDateCell.EntireColumn.AutoFit();
                 }
-                
+
+                for (int i = 2; i < valuesFromNorth.Count + 2; i++)
+                {
+                    Excel.Range cell = targetNorthSheet.Cells[i, 3]; // C column
+                    cell.Value = valuesFromNorth[i - 2];
+                }
+
+
                 Worksheet worksheet = workbook.Worksheets["FFCCHKS"];
                 Worksheet targetSheet1 = targetWorkbook.Worksheets["Sheet1"];
  
@@ -117,7 +170,7 @@ namespace EmployeeCount
                             ffcchksList.Add(rowData);
                         }
                     }
-                }
+                }   
 
                 int sheet1Row =  2;
                 foreach (var data in ffcchksList)
@@ -127,41 +180,39 @@ namespace EmployeeCount
                     sheet1Row++;
                 }
 
-                Dictionary<string, int> storeCounts = new Dictionary<string, int>();
-
-                foreach (var data in ffcchksList)
-                {
-                    if (storeCounts.ContainsKey(data.Store))
-                    {
-                        storeCounts[data.Store]++;
-                    }
-                    else
-                    {
-                        storeCounts[data.Store] = 1;
-                    }
-                }
-
-                Excel.Range clearRange = targetSheet1.Range[targetSheet1.Cells[5, 7], targetSheet1.Cells[targetSheet1.UsedRange.Rows.Count,7]];
-                clearRange.Clear();
-
-                int targetRow = 5;
-                foreach (var pair in storeCounts)
-                {
-                    targetSheet1.Cells[targetRow, 6].Value = pair.Key;
-                    targetSheet1.Cells[targetRow, 7].Value = pair.Value;
-                    targetRow++;
-                }
-                targetSheet1.Cells[targetRow, 6].Value = "Grand Total";
-
-                int total = storeCounts.Values.Sum();
-                targetSheet1.Cells[targetRow, 7].Value = total;
-
                 PivotTable pivotTable = targetSheet1.PivotTables(1);
                 pivotTable.RefreshTable();
 
-                targetWorkbook.Save();
-                targetWorkbook.Close();
-                workbook.Close();
+                //Dictionary<string, int> storeCounts = new Dictionary<string, int>();
+
+                //foreach (var data in ffcchksList)
+                //{
+                //    if (storeCounts.ContainsKey(data.Store))
+                //    {
+                //        storeCounts[data.Store]++;
+                //    }
+                //    else
+                //    {
+                //        storeCounts[data.Store] = 1;
+                //    }
+                //}
+
+
+                //int targetRow = 5;
+                //foreach (var pair in storeCounts)
+                //{
+                //    targetSheet1.Cells[targetRow, 6].Value = pair.Key;
+                //    targetSheet1.Cells[targetRow, 7].Value = pair.Value;
+                //    targetRow++;
+                //}
+                //targetSheet1.Cells[targetRow, 6].Value = "Grand Total";
+
+                //int total = storeCounts.Values.Sum();
+                //targetSheet1.Cells[targetRow, 7].Value = total;
+
+                //targetWorkbook.Save();
+                //targetWorkbook.Close();
+                //workbook.Close();
 
             }
             catch (Exception ex)
