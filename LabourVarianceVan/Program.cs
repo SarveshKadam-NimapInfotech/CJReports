@@ -20,6 +20,15 @@ namespace LabourVarianceVan
         public string Desc { get; set; }
         public string Amount { get; set; }
     }
+
+    internal class CjLabourStandardData
+    {
+        public string CjStore { get; set; }
+        public double Sales { get; set; }
+        public double Labour { get; set; }
+        public double Actual { get; set; }
+        public double Var { get; set; }
+    }
     internal class Program
     {
         static void Main(string[] args)
@@ -36,6 +45,9 @@ namespace LabourVarianceVan
             excelApp.DisplayAlerts = false;
             excelApp.DisplayClipboardWindow = false;
             excelApp.DisplayStatusBar = false;
+
+            string storeListFilePath = @"C:\Users\Public\Documents\StoreList.xlsx";
+            Excel.Workbook storeList = excelApp.Workbooks.Open(storeListFilePath);
 
             string labourVar1FilePath = @"C:\Users\Nimap\Downloads\Labor var Van - Copy\Labor Var 2023-11-20.xlsx";
             Excel.Workbook labourVar1Workbook = excelApp.Workbooks.Open(labourVar1FilePath);
@@ -112,7 +124,7 @@ namespace LabourVarianceVan
 
                     return columnLetter;
                 }
-                /*
+                
                 Worksheet labourVar1SalesSheet = labourVar1Workbook.Worksheets["Sales"];
 
                 int salesColumn = labourVar1SalesSheet.UsedRange.Columns.Count - 1;
@@ -213,10 +225,8 @@ namespace LabourVarianceVan
                 labourVar1LaborsSheet.Range[$"{laborsColumnLetter}5:{laborsColumnLetter}60"].Formula = $"=XLOOKUP($B5,Data!$A:$A,Data!{pivotColumnLetter}:{pivotColumnLetter},0,0,1)";
 
                 //labourVar1Workbook.SaveAs(@"C: \Users\Nimap\Downloads\Labor var Van - Copy\test\Labor Var 2023 - 11 - 20.xlsx");
-                labourVar1Workbook.Save();
-                */
-                DateTime parsedDate = DateTime.ParseExact(date, "MM/dd/yyyy", CultureInfo.InvariantCulture);
-
+                //labourVar1Workbook.Save();
+                
                 // Second file - Cj labour
 
                 string cjMonth = parsedDate.ToString("MM", CultureInfo.InvariantCulture);
@@ -249,10 +259,10 @@ namespace LabourVarianceVan
                 Excel.Range cellC4 = newSheet.Range["C4"];
                 cellC4.Value = date;
 
-                Worksheet cjLabourSales = cjLabourWorkbook.Worksheets["Sales"];
+                Worksheet cjLabourSalesSheet = cjLabourWorkbook.Worksheets["Sales"];
                 var cjPreviousLabourDate = $"PPE {previousCjMonth}/{previousCjday}";
 
-                Excel.Range row2 = cjLabourSales.Rows[2];
+                Excel.Range row2 = cjLabourSalesSheet.Rows[2];
                 int cjLabourColumn = -1;
                 foreach (Excel.Range cell in row2.Cells)
                 {
@@ -265,12 +275,128 @@ namespace LabourVarianceVan
 
                 string cjLaborsColumnLetter = GetColumnLetter(cjLabourColumn + 1);
 
-                Excel.Range cjLaborsAddColumn = cjLabourSales.Columns[cjLabourColumn + 1];
+                Excel.Range cjLaborsAddColumn = cjLabourSalesSheet.Columns[cjLabourColumn + 1];
                 cjLaborsAddColumn.Insert(Excel.XlInsertShiftDirection.xlShiftToRight);
 
-                cjLabourSales.Cells[2, cjLabourColumn + 1].Value = $"PPE {cjMonth}/{cjDay}";
-                cjLabourSales.Cells[3, cjLabourColumn + 1].Value = "$";
-                //cjLabourSales.Range[$"{salesColumnLetter}5:{salesColumnLetter}{labourVar1SalesSheet.UsedRange.Rows.Count}"].Formula = $"=IFERROR((VLOOKUP($B5,'Week {previousWeekNbr}'!$A:$C,3,FALSE)+VLOOKUP($B5,'Week {currentWeekNbr}'!$A:$C,3,FALSE)),0)";
+                cjLabourSalesSheet.Cells[2, cjLabourColumn + 1].Value = $"PPE {cjMonth}/{cjDay}";
+                cjLabourSalesSheet.Cells[3, cjLabourColumn + 1].Value = "$";
+
+                Excel.Range sourceLabourRange = labourVar1LaborsSheet.Range[$"{laborsColumnLetter}5:{laborsColumnLetter}{labourVar1LaborsSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                Excel.Range targetLabourRange = cjLabourSalesSheet.Range[$"{cjLaborsColumnLetter}5:{cjLaborsColumnLetter}{cjLabourSalesSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+
+                sourceLabourRange.Copy(Type.Missing);
+                targetLabourRange.PasteSpecial(XlPasteType.xlPasteValues);
+
+                cjLabourSalesSheet.Cells[4, cjLabourColumn + 1].Formula = $"=SUM({cjLaborsColumnLetter}5:{cjLaborsColumnLetter}60)";
+
+                var cjPreviousSalesDate = $"Ending {previousCjMonth}/{previousCjday}";
+
+                Excel.Range row3 = cjLabourSalesSheet.Rows[3];
+                int cjSalesColumn = -1;
+                foreach (Excel.Range cell in row3.Cells)
+                {
+                    if (cell.Value == cjPreviousSalesDate)
+                    {
+                        cjSalesColumn = cell.Column;
+                        break;
+                    }
+                }
+
+                string cjSalesColumnLetter = GetColumnLetter(cjSalesColumn + 1);
+
+                Excel.Range cjSalesAddColumn = cjLabourSalesSheet.Columns[cjSalesColumn + 1];
+                cjSalesAddColumn.Insert(Excel.XlInsertShiftDirection.xlShiftToRight);
+
+                cjLabourSalesSheet.Cells[3, cjSalesColumn + 1].Value = $"Ending {cjMonth}/{cjDay}";
+
+                Excel.Range sourceSalesRange = labourVar1SalesSheet.Range[$"{salesColumnLetter}5:{salesColumnLetter}{labourVar1SalesSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                Excel.Range targetSalesRange = cjLabourSalesSheet.Range[$"{cjSalesColumnLetter}5:{cjSalesColumnLetter}{cjLabourSalesSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+
+                sourceSalesRange.Copy(Type.Missing);
+                targetSalesRange.PasteSpecial(XlPasteType.xlPasteValues);
+
+                cjLabourSalesSheet.Cells[4, cjSalesColumn + 1].Formula = $"=SUM({cjSalesColumnLetter}5:{cjSalesColumnLetter}60)";
+
+                newSheet.Range[$"C9:C62"].Formula = $"=INDEX(Sales!{cjSalesColumnLetter}:{cjSalesColumnLetter},MATCH('Labor Standard Var 1204'!B9,Sales!B:B,0))";
+                newSheet.Range[$"F9:F62"].Formula = $"=INDEX(Sales!{cjLaborsColumnLetter}:{cjLaborsColumnLetter},MATCH('Labor Standard Var 1204'!B9,Sales!B:B,0))";
+
+                // third file - labour var van 2
+
+                Worksheet summarySheet = labourVar2Workbook.Worksheets["Summary"];
+
+                List<CjLabourStandardData> cjLabourStandardDatas = new List<CjLabourStandardData>();
+
+                for (int i = 9; i < 63; i++)
+                {
+                    string cjStore = Convert.ToString(newSheet.Cells[i, 2].Value);
+
+                    string salesCellValue = Convert.ToString(newSheet.Cells[i, 3].Value);
+                    salesCellValue = salesCellValue.Replace("$", ""); 
+                    double salesValue = 0.0;
+                    if (double.TryParse(salesCellValue, out double parsedSalesValue))
+                    {
+                        salesValue = parsedSalesValue / 1000; 
+                    }
+
+                    string labourCellValue = Convert.ToString(newSheet.Cells[i, 5].Value);
+                    labourCellValue = labourCellValue.Replace("%", ""); 
+                    double labourValue = 0.0;
+                    if (double.TryParse(labourCellValue, out double parsedLabourValue))
+                    {
+                        labourValue = parsedLabourValue;
+                    }
+
+                    string actualCellValue = Convert.ToString(newSheet.Cells[i, 7].Value);
+                    actualCellValue = actualCellValue.Replace("%", ""); 
+                    double actualValue = 0.0;
+                    if (double.TryParse(actualCellValue, out double parsedActualValue))
+                    {
+                        actualValue = parsedActualValue;
+                    }
+
+                    string varCellValue = Convert.ToString(newSheet.Cells[i, 14].Value);
+                    varCellValue = varCellValue.Replace("%", ""); 
+                    double varValue = 0.0;
+                    if (double.TryParse(varCellValue, out double parsedVarValue))
+                    {
+                        varValue = parsedVarValue;
+                    }
+
+                    CjLabourStandardData data = new CjLabourStandardData
+                    {
+                        CjStore = cjStore,
+                        Sales = salesValue,
+                        Labour = labourValue,
+                        Actual = actualValue,
+                        Var = varValue
+                    };
+
+                    cjLabourStandardDatas.Add(data);
+                }
+
+                var summaryRow = 5;
+                foreach (var data in cjLabourStandardDatas)
+                {
+                    summarySheet.Cells[summaryRow, 2].Value = data.CjStore;
+                    summarySheet.Cells[summaryRow, 3].Value = data.Sales;
+                    summarySheet.Cells[summaryRow, 4].Value = data.Labour;
+                    summarySheet.Cells[summaryRow, 5].Value = data.Actual;
+                    summarySheet.Cells[summaryRow, 6].Value = data.Var;
+                    summaryRow++;
+                }
+
+                Worksheet cjListing = labourVar2Workbook.Worksheets[1];
+                Worksheet siteList = storeList.Worksheets[1];
+
+                Excel.Range clearRange = cjListing.Range["A1:N" + cjListing.Rows.Count];
+                clearRange.Clear();
+
+                Excel.Range copyRange = siteList.Range["A1:M" + siteList.Rows.Count];
+                copyRange.Copy(clearRange);
+
+
+
+
 
 
 
