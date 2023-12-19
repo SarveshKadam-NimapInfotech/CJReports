@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
@@ -25,9 +26,9 @@ namespace LabourVarianceVan
     {
         public string CjStore { get; set; }
         public double Sales { get; set; }
-        public double Labour { get; set; }
-        public double Actual { get; set; }
-        public double Var { get; set; }
+        public string Labour { get; set; }
+        public string Actual { get; set; }
+        public string Var { get; set; }
     }
     internal class Program
     {
@@ -340,40 +341,43 @@ namespace LabourVarianceVan
 
                     string labourCellValue = Convert.ToString(newSheet.Cells[i, 5].Value);
                     labourCellValue = labourCellValue.Replace("%", ""); 
-                    double labourValue = 0.0;
+                    double labourDouble = 0.0;
                     if (double.TryParse(labourCellValue, out double parsedLabourValue))
                     {
-                        labourValue = parsedLabourValue;
+                        labourDouble = parsedLabourValue * 100;
+                        labourCellValue = labourDouble.ToString(); 
                     }
 
                     string actualCellValue = Convert.ToString(newSheet.Cells[i, 7].Value);
                     actualCellValue = actualCellValue.Replace("%", ""); 
-                    double actualValue = 0.0;
+                    double actualDouble = 0.0;
                     if (double.TryParse(actualCellValue, out double parsedActualValue))
                     {
-                        actualValue = parsedActualValue;
+                        actualDouble = parsedActualValue * 100;
+                        actualCellValue = actualDouble.ToString(); 
                     }
 
                     string varCellValue = Convert.ToString(newSheet.Cells[i, 14].Value);
                     varCellValue = varCellValue.Replace("%", ""); 
-                    double varValue = 0.0;
+                    double varDouble = 0.0;
                     if (double.TryParse(varCellValue, out double parsedVarValue))
                     {
-                        varValue = parsedVarValue;
+                        varDouble = parsedVarValue * 100;
+                        varCellValue = varDouble.ToString(); 
                     }
 
                     CjLabourStandardData data = new CjLabourStandardData
                     {
                         CjStore = cjStore,
                         Sales = salesValue,
-                        Labour = labourValue,
-                        Actual = actualValue,
-                        Var = varValue
+                        Labour = labourCellValue,
+                        Actual = actualCellValue,
+                        Var = varCellValue
                     };
 
                     cjLabourStandardDatas.Add(data);
                 }
-
+                
                 var summaryRow = 5;
                 foreach (var data in cjLabourStandardDatas)
                 {
@@ -385,14 +389,35 @@ namespace LabourVarianceVan
                     summaryRow++;
                 }
 
+                Excel.Range columnsToInsert = summarySheet.Columns["T:T"].Resize[Missing.Value, 3]; 
+                columnsToInsert.Insert(Excel.XlInsertShiftDirection.xlShiftToRight, Excel.XlInsertFormatOrigin.xlFormatFromLeftOrAbove); 
+
+                Excel.Range sourceRange = summarySheet.Range["Q:Q,R:R"]; 
+                Excel.Range destinationRange = summarySheet.Range["T:U"]; 
+
+                sourceRange.Copy(destinationRange);
+
+                Excel.Range cellT4 = summarySheet.Cells[4, 20]; 
+                Excel.Range cellU4 = summarySheet.Cells[4, 21]; 
+                Excel.Range mergedRange = summarySheet.Range[cellT4, cellU4];
+                mergedRange.Merge();
+
+                Excel.Range cellQ4 = summarySheet.Cells[4, 17]; 
+                Excel.Range cellR4 = summarySheet.Cells[4, 18]; 
+                cellQ4.MergeArea.Value = date;
+
                 Worksheet cjListing = labourVar2Workbook.Worksheets[1];
                 Worksheet siteList = storeList.Worksheets[1];
 
                 Excel.Range clearRange = cjListing.Range["A1:N" + cjListing.Rows.Count];
                 clearRange.Clear();
 
-                Excel.Range copyRange = siteList.Range["A1:M" + siteList.Rows.Count];
+                Excel.Range copyRange = siteList.Range["A1:N" + siteList.Rows.Count];
                 copyRange.Copy(clearRange);
+
+                
+
+
 
 
 
