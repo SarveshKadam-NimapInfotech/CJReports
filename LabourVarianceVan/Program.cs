@@ -83,7 +83,7 @@ namespace LabourVarianceVan
 
                 var previousWeekNbr = currentWeekNbr - 1;
 
-                
+
                 foreach (Excel.Worksheet worksheet in weeklySalesWorkbook.Worksheets)
                 {
                     string sheetName = worksheet.Name;
@@ -125,7 +125,7 @@ namespace LabourVarianceVan
 
                     return columnLetter;
                 }
-                
+
                 Worksheet labourVar1SalesSheet = labourVar1Workbook.Worksheets["Sales"];
 
                 int salesColumn = labourVar1SalesSheet.UsedRange.Columns.Count - 1;
@@ -135,14 +135,14 @@ namespace LabourVarianceVan
                 Excel.Range salesAddColumn = labourVar1SalesSheet.Columns[salesColumn];
                 salesAddColumn.Insert(Excel.XlInsertShiftDirection.xlShiftToRight);
 
-                labourVar1SalesSheet.Cells[3,salesColumn].Value = date;
+                labourVar1SalesSheet.Cells[3, salesColumn].Value = date;
                 labourVar1SalesSheet.Cells[4, salesColumn].Formula = $"=SUM({salesColumnLetter}5:{salesColumnLetter}60)";
                 labourVar1SalesSheet.Range[$"{salesColumnLetter}5:{salesColumnLetter}{labourVar1SalesSheet.UsedRange.Rows.Count}"].Formula = $"=IFERROR((VLOOKUP($B5,'Week {previousWeekNbr}'!$A:$C,3,FALSE)+VLOOKUP($B5,'Week {currentWeekNbr}'!$A:$C,3,FALSE)),0)";
 
                 Worksheet ffcglSheet = ffcglWorkbook.Worksheets["FFCGL"];
                 Worksheet labourVar1FfcglSheet = labourVar1Workbook.Worksheets["FFCGL"];
 
-                List<FfcglData> ffcglList = new List<FfcglData> ();
+                List<FfcglData> ffcglList = new List<FfcglData>();
                 int ffcglLastRow = ffcglSheet.Cells[ffcglSheet.Rows.Count, 1].End[Excel.XlDirection.xlUp].Row;
                 int labourVar1FfcglSheetLastRow1 = labourVar1FfcglSheet.Cells[labourVar1FfcglSheet.Rows.Count, 1].End[Excel.XlDirection.xlUp].Row + 1;
                 int labourVar1FfcglSheetLastRow2 = labourVar1FfcglSheetLastRow1;
@@ -166,7 +166,7 @@ namespace LabourVarianceVan
                                 JobDesp = jobDesp,
                                 Desc = desc,
                                 Amount = amount,
-                                
+
                             };
 
                             ffcglList.Add(rowData);
@@ -208,7 +208,7 @@ namespace LabourVarianceVan
                         //Console.WriteLine($"Found date '{pivotDate}' at cell: {cell.Address}");
                         string cellAddress = cell.Address.ToString();
                         pivotColumnLetter = new string(cellAddress.Where(char.IsLetter).ToArray());
-                        break; 
+                        break;
                     }
                 }
 
@@ -227,11 +227,12 @@ namespace LabourVarianceVan
 
                 //labourVar1Workbook.SaveAs(@"C: \Users\Nimap\Downloads\Labor var Van - Copy\test\Labor Var 2023 - 11 - 20.xlsx");
                 //labourVar1Workbook.Save();
-                
+
                 // Second file - Cj labour
 
                 string cjMonth = parsedDate.ToString("MM", CultureInfo.InvariantCulture);
                 string cjDay = parsedDate.ToString("dd", CultureInfo.InvariantCulture);
+                string cjYear = parsedDate.ToString("yyyy", CultureInfo.InvariantCulture);
 
                 var cjDate = $"{cjMonth}{cjDay}";
 
@@ -249,7 +250,7 @@ namespace LabourVarianceVan
                     {
                         previousSheet = sheet;
                         break;
-                       
+
                     }
                 }
 
@@ -269,7 +270,7 @@ namespace LabourVarianceVan
                 {
                     if (cell.Value == cjPreviousLabourDate)
                     {
-                        cjLabourColumn = cell.Column; 
+                        cjLabourColumn = cell.Column;
                         break;
                     }
                 }
@@ -332,38 +333,38 @@ namespace LabourVarianceVan
                     string cjStore = Convert.ToString(newSheet.Cells[i, 2].Value);
 
                     string salesCellValue = Convert.ToString(newSheet.Cells[i, 3].Value);
-                    salesCellValue = salesCellValue.Replace("$", ""); 
+                    salesCellValue = salesCellValue.Replace("$", "");
                     double salesValue = 0.0;
                     if (double.TryParse(salesCellValue, out double parsedSalesValue))
                     {
-                        salesValue = parsedSalesValue / 1000; 
+                        salesValue = parsedSalesValue / 1000;
                     }
 
                     string labourCellValue = Convert.ToString(newSheet.Cells[i, 5].Value);
-                    labourCellValue = labourCellValue.Replace("%", ""); 
+                    labourCellValue = labourCellValue.Replace("%", "");
                     double labourDouble = 0.0;
                     if (double.TryParse(labourCellValue, out double parsedLabourValue))
                     {
                         labourDouble = parsedLabourValue * 100;
-                        labourCellValue = labourDouble.ToString(); 
+                        labourCellValue = labourDouble.ToString();
                     }
 
                     string actualCellValue = Convert.ToString(newSheet.Cells[i, 7].Value);
-                    actualCellValue = actualCellValue.Replace("%", ""); 
+                    actualCellValue = actualCellValue.Replace("%", "");
                     double actualDouble = 0.0;
                     if (double.TryParse(actualCellValue, out double parsedActualValue))
                     {
                         actualDouble = parsedActualValue * 100;
-                        actualCellValue = actualDouble.ToString(); 
+                        actualCellValue = actualDouble.ToString();
                     }
 
                     string varCellValue = Convert.ToString(newSheet.Cells[i, 14].Value);
-                    varCellValue = varCellValue.Replace("%", ""); 
+                    varCellValue = varCellValue.Replace("%", "");
                     double varDouble = 0.0;
                     if (double.TryParse(varCellValue, out double parsedVarValue))
                     {
                         varDouble = parsedVarValue * 100;
-                        varCellValue = varDouble.ToString(); 
+                        varCellValue = varDouble.ToString();
                     }
 
                     CjLabourStandardData data = new CjLabourStandardData
@@ -377,7 +378,7 @@ namespace LabourVarianceVan
 
                     cjLabourStandardDatas.Add(data);
                 }
-                
+
                 var summaryRow = 5;
                 foreach (var data in cjLabourStandardDatas)
                 {
@@ -389,21 +390,24 @@ namespace LabourVarianceVan
                     summaryRow++;
                 }
 
-                Excel.Range columnsToInsert = summarySheet.Columns["T:T"].Resize[Missing.Value, 3]; 
-                columnsToInsert.Insert(Excel.XlInsertShiftDirection.xlShiftToRight, Excel.XlInsertFormatOrigin.xlFormatFromLeftOrAbove); 
+                Excel.Range columnsToInsert = summarySheet.Columns["T:T"].Resize[Missing.Value, 3];
+                columnsToInsert.Insert(Excel.XlInsertShiftDirection.xlShiftToRight, Excel.XlInsertFormatOrigin.xlFormatFromLeftOrAbove);
 
-                Excel.Range sourceRange = summarySheet.Range["Q:Q,R:R"]; 
-                Excel.Range destinationRange = summarySheet.Range["T:U"]; 
+                Excel.Range sourceRange = summarySheet.Range["Q:Q,R:R"];
+                Excel.Range destinationRange = summarySheet.Range["T:U"];
 
                 sourceRange.Copy(destinationRange);
 
-                Excel.Range cellT4 = summarySheet.Cells[4, 20]; 
-                Excel.Range cellU4 = summarySheet.Cells[4, 21]; 
+                Excel.Range cellT4 = summarySheet.Cells[4, 20];
+                Excel.Range cellU4 = summarySheet.Cells[4, 21];
                 Excel.Range mergedRange = summarySheet.Range[cellT4, cellU4];
                 mergedRange.Merge();
 
-                Excel.Range cellQ4 = summarySheet.Cells[4, 17]; 
-                Excel.Range cellR4 = summarySheet.Cells[4, 18]; 
+                Range sortURange = summarySheet.Range["T5:U15"];
+                sortURange.Sort(sortURange.Columns[2], XlSortOrder.xlAscending, Type.Missing, Type.Missing);
+
+                Excel.Range cellQ4 = summarySheet.Cells[4, 17];
+                Excel.Range cellR4 = summarySheet.Cells[4, 18];
                 cellQ4.MergeArea.Value = date;
 
                 Worksheet cjListing = labourVar2Workbook.Worksheets[1];
@@ -415,17 +419,121 @@ namespace LabourVarianceVan
                 Excel.Range copyRange = siteList.Range["A1:N" + siteList.Rows.Count];
                 copyRange.Copy(clearRange);
 
-                
+                Dictionary<string, List<string>> dict = new Dictionary<string, List<string>>();
+
+                int row = 9;
+                while (cjListing.Cells[row, 1].Value.ToString() != "North")
+                {
+                    string cellValue = Convert.ToString(cjListing.Cells[row, 1].Value);
+
+                    if (cellValue.StartsWith("Dist") || cellValue.StartsWith("D"))
+                    {
+                        string key = cellValue;
+
+                        if (cellValue.StartsWith("D") && cellValue.Length > 1 && !char.IsLetter(cellValue[1]))
+                        {
+                            key = "Dist " + cellValue.Substring(1);
+                        }
+
+                        List<string> values = new List<string>();
+
+                        while (cjListing.Cells[++row, 1].Value != null)
+                        {
+                            string nextCellValue = Convert.ToString(cjListing.Cells[row, 1].Value);
+
+                            if (nextCellValue.StartsWith("Dist") || nextCellValue.StartsWith("D") || nextCellValue.StartsWith("Region") || nextCellValue == "North")
+                            {
+                                break;
+                            }
+
+                            values.Add(nextCellValue);
+                        }
+
+                        dict.Add(key, values);
+                    }
+                    else
+                    {
+                        row++;
+                    }
+                }
+
+                foreach (var pair in dict)
+                {
+                    Console.WriteLine($"Key: {pair.Key}");
+                    Console.WriteLine("Values:");
+                    foreach (var value in pair.Value)
+                    {
+                        Console.WriteLine(value);
+                    }
+                    Console.WriteLine();
+                }
+
+                for (int i = 1; i <= 11; i++)
+                {
+                    string sheetNumber = i.ToString().PadLeft(2, '0');
+
+                    foreach (Excel.Worksheet sheet in labourVar2Workbook.Worksheets)
+                    {
+                        if (sheet.Name.Contains(sheetNumber))
+                        {
+                            int distRow = 4;
+                            while (sheet.Cells[distRow, 2].Value != null)
+                            {
+                                sheet.Cells[distRow, 2].Value = null;
+                                distRow++;
+                            }
+
+                            List<string> distValues = dict.ContainsKey($"Dist {i}") ? dict[$"Dist {i}"] : new List<string>();
+                            distRow = 4;
+                            foreach (string value in distValues)
+                            {
+                                if (sheet.Cells[distRow, 1].Value == null)
+                                {
+                                    sheet.Rows[distRow - 1].Copy(Type.Missing);
+                                    sheet.Rows[distRow - 1].Insert(Excel.XlInsertShiftDirection.xlShiftDown);
+                                    sheet.Rows[distRow].PasteSpecial(XlPasteType.xlPasteAll);
+                                }
+
+                                sheet.Cells[distRow, 2].Value = value;
+
+                                distRow++;
+                            }
+
+                            while (sheet.Cells[distRow, 1].Value != null)
+                            {
+                                sheet.Rows[distRow].Delete(Excel.XlDeleteShiftDirection.xlShiftUp);
+                            }
+                        }
+                    }
+                }
+
+                Range sortRange = summarySheet.Range[$"B{5}:F{summarySheet.UsedRange.Rows.Count}"];
+                sortRange.Sort(sortRange.Columns[5], XlSortOrder.xlAscending);
 
 
+                foreach (Excel.Worksheet sheet in labourVar2Workbook.Worksheets)
+                {
+                    if (sheet.Name.Contains("District"))
+                    {
+
+                        Range sortDistrictRange = sheet.Range[$"A{4}:F{sheet.UsedRange.Rows.Count}"];
+                        sortDistrictRange.Sort(sortDistrictRange.Columns[6], XlSortOrder.xlAscending);
+
+                        sheet.Cells[2, 1].MergeArea.Value = date;
 
 
+                    }
+                }
 
+                Range sortDRange = summarySheet.Range["Q5:R15"]; 
+                sortDRange.Sort(sortDRange.Columns[2], XlSortOrder.xlAscending, Type.Missing, Type.Missing);
 
+                Range sortTRange = summarySheet.Range["T5:U15"];
+                sortTRange.Sort(sortTRange.Columns[2], XlSortOrder.xlAscending, Type.Missing, Type.Missing);
 
+                summarySheet.Cells[1,1].MergeArea.Value = $"{cjMonth}-{cjDay}-{cjYear} CARLS JR LABOR VARIANCE";
 
-
-
+                summarySheet.Cells[1,8].MergeArea.Value = $"{cjMonth}-{cjDay}-{cjYear} CARLS JR LABOR VARIANCE";
 
             }
             catch (Exception ex)
