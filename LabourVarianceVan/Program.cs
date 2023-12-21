@@ -457,17 +457,6 @@ namespace LabourVarianceVan
                     }
                 }
 
-                foreach (var pair in dict)
-                {
-                    Console.WriteLine($"Key: {pair.Key}");
-                    Console.WriteLine("Values:");
-                    foreach (var value in pair.Value)
-                    {
-                        Console.WriteLine(value);
-                    }
-                    Console.WriteLine();
-                }
-
                 for (int i = 1; i <= 11; i++)
                 {
                     string sheetNumber = i.ToString().PadLeft(2, '0');
@@ -528,12 +517,60 @@ namespace LabourVarianceVan
                 Range sortDRange = summarySheet.Range["Q5:R15"]; 
                 sortDRange.Sort(sortDRange.Columns[2], XlSortOrder.xlAscending, Type.Missing, Type.Missing);
 
-                Range sortTRange = summarySheet.Range["T5:U15"];
-                sortTRange.Sort(sortTRange.Columns[2], XlSortOrder.xlAscending, Type.Missing, Type.Missing);
-
                 summarySheet.Cells[1,1].MergeArea.Value = $"{cjMonth}-{cjDay}-{cjYear} CARLS JR LABOR VARIANCE";
 
                 summarySheet.Cells[1,8].MergeArea.Value = $"{cjMonth}-{cjDay}-{cjYear} CARLS JR LABOR VARIANCE";
+
+                // Fourth File - Labour var trends
+
+                Worksheet labourVarTrendSheet1 = labourVarTrendWorkbook.Worksheets["Data"];
+                Worksheet labourVarTrendSheet2 = labourVarTrendWorkbook.Worksheets["BI-Weekly Trend"];
+
+                var labourVarTrendLastRow = labourVarTrendSheet1.UsedRange.Rows.Count + 2;
+
+                Excel.Range labourVarCopyRange1 = summarySheet.Range["A1:O4"];
+                Excel.Range labourVarPasteRange1 = labourVarTrendSheet1.Range["B" + labourVarTrendLastRow];
+
+                labourVarCopyRange1.Copy(Type.Missing);
+                labourVarPasteRange1.PasteSpecial(Excel.XlPasteType.xlPasteFormats);
+
+                labourVarCopyRange1.Copy(Type.Missing);
+                labourVarPasteRange1.PasteSpecial(Excel.XlPasteType.xlPasteValues);
+
+                labourVarTrendSheet2.Rows[2].Insert(Excel.XlInsertShiftDirection.xlShiftDown);
+                Excel.Range labourVarCopyRange2 = summarySheet.Range["B4:F4"];
+                Excel.Range labourVarPasteRange2 = labourVarTrendSheet2.Range["A2:E2"];
+                Excel.Range labourVarCopyRange3 = labourVarTrendSheet2.Range["A3:E3"];
+
+
+                labourVarCopyRange3.Copy(Type.Missing);
+                labourVarPasteRange2.PasteSpecial(Excel.XlPasteType.xlPasteFormats);
+
+                labourVarCopyRange2.Copy(Type.Missing);
+                labourVarPasteRange2.PasteSpecial(Excel.XlPasteType.xlPasteValues);
+
+                labourVarTrendSheet2.Cells[2, 1].Value = date;
+
+                // Access the chart object
+                Excel.ChartObjects chartObjects = labourVarTrendSheet2.ChartObjects() as Excel.ChartObjects;
+                Excel.ChartObject chartObject = chartObjects.Item(1); // Replace 1 with the index of your chart
+
+                // Get the chart
+                Excel.Chart chart = chartObject.Chart;
+
+                // Update the chart data range to include the new values in columns A and E
+                int lastRow = labourVarTrendSheet2.Cells[labourVarTrendSheet2.Rows.Count, "A"].End[Excel.XlDirection.xlUp].Row;
+                Excel.Range newDataRange = labourVarTrendSheet2.Range["A1:E" + lastRow]; // Assuming your data starts from A1
+
+                // Update the chart data source
+                chart.SetSourceData(newDataRange);
+
+
+
+
+
+
+
 
             }
             catch (Exception ex)
