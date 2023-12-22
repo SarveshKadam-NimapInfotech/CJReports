@@ -551,25 +551,34 @@ namespace LabourVarianceVan
 
                 labourVarTrendSheet2.Cells[2, 1].Value = date;
 
-                // Access the chart object
                 Excel.ChartObjects chartObjects = labourVarTrendSheet2.ChartObjects() as Excel.ChartObjects;
-                Excel.ChartObject chartObject = chartObjects.Item(1); // Replace 1 with the index of your chart
+                Excel.ChartObject chartObject2 = chartObjects.Item(2);
+                Excel.Chart chart2 = chartObject2.Chart;
 
-                // Get the chart
-                Excel.Chart chart = chartObject.Chart;
+                int lastRow = labourVarTrendSheet2.UsedRange.Rows.Count;
+                Excel.Range rangeA = labourVarTrendSheet2.Range["A2:A" + lastRow];
 
-                // Update the chart data range to include the new values in columns A and E
-                int lastRow = labourVarTrendSheet2.Cells[labourVarTrendSheet2.Rows.Count, "A"].End[Excel.XlDirection.xlUp].Row;
-                Excel.Range newDataRange = labourVarTrendSheet2.Range["A1:E" + lastRow]; // Assuming your data starts from A1
+                Excel.Range rangeE = labourVarTrendSheet2.Range["E2:E" + lastRow];
 
-                // Update the chart data source
-                chart.SetSourceData(newDataRange);
+                Excel.Range categoryRange = rangeA;
+                Excel.Range valueRange = rangeE;
 
+                Excel.Range combinedRange = labourVarTrendSheet2.Application.Union(categoryRange, valueRange);
 
-
-
+                chart2.SetSourceData(combinedRange);
 
 
+
+                Excel.ChartObject chartObject1 = chartObjects.Item(1); 
+                Excel.Chart chart1 = chartObject1.Chart;
+
+                Excel.Range rangeB = labourVarTrendSheet2.Range["B2:B" + lastRow];
+
+                Excel.Range valueRange2 = rangeB;
+
+                Excel.Range combinedRange2 = labourVarTrendSheet2.Application.Union(categoryRange, valueRange2);
+
+                chart1.SetSourceData(combinedRange2);
 
 
             }
