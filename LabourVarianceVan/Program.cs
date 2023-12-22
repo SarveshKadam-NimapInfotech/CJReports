@@ -225,14 +225,15 @@ namespace LabourVarianceVan
                 labourVar1LaborsSheet.Cells[4, laborsColumn].Formula = $"=SUM({laborsColumnLetter}5:{laborsColumnLetter}60)";
                 labourVar1LaborsSheet.Range[$"{laborsColumnLetter}5:{laborsColumnLetter}60"].Formula = $"=XLOOKUP($B5,Data!$A:$A,Data!{pivotColumnLetter}:{pivotColumnLetter},0,0,1)";
 
-                //labourVar1Workbook.SaveAs(@"C: \Users\Nimap\Downloads\Labor var Van - Copy\test\Labor Var 2023 - 11 - 20.xlsx");
-                //labourVar1Workbook.Save();
-
-                // Second file - Cj labour
 
                 string cjMonth = parsedDate.ToString("MM", CultureInfo.InvariantCulture);
                 string cjDay = parsedDate.ToString("dd", CultureInfo.InvariantCulture);
                 string cjYear = parsedDate.ToString("yyyy", CultureInfo.InvariantCulture);
+
+                labourVar1Workbook.SaveAs($@"C: \Users\Nimap\Downloads\Labor var Van - Copy\test\Labor Var 2023 - 11 - 20.xlsx");
+                //labourVar1Workbook.Save();
+
+                // Second file - Cj labour
 
                 var cjDate = $"{cjMonth}{cjDay}";
 
