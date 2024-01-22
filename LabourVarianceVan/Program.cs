@@ -54,7 +54,7 @@ namespace LabourVarianceVan
         public void LabourVarianceVan()
         {
             Excel.Application excelApp = new Excel.Application();
-            excelApp.Visible = true;
+            excelApp.Visible = false;
             excelApp.Interactive = false;
             excelApp.DisplayAlerts = false;
             excelApp.DisplayClipboardWindow = false;
@@ -91,7 +91,7 @@ namespace LabourVarianceVan
             {
                 //first file - labour var van 1
 
-                var date = "12/18/2023";
+                var date = "01/01/2024";
 
                 DateTime dateValue;
                 DateTime.TryParseExact(date, "MM/dd/yyyy", new CultureInfo("en-US"), DateTimeStyles.None, out dateValue);
@@ -100,7 +100,17 @@ namespace LabourVarianceVan
 
                 var currentWeekNbr = cal.GetWeekOfYear(dateValue, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
 
-                var previousWeekNbr = currentWeekNbr - 1;
+                int previousWeekNbr;
+                if (currentWeekNbr == 1)
+                {
+                    // If the current week number is 1, get the last week of the previous year
+                    previousWeekNbr = cal.GetWeekOfYear(dateValue.AddYears(-1), CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+                }
+                else
+                {
+                    // Otherwise, get the previous week of the current year
+                    previousWeekNbr = currentWeekNbr - 1;
+                }
 
 
                 foreach (Excel.Worksheet worksheet in weeklySalesWorkbook.Worksheets)
