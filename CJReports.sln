@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmployeeCount", "EmployeeCo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LabourVarianceVan", "LabourVarianceVan\LabourVarianceVan.csproj", "{1D1DAC4E-5B4A-4BAD-A9E4-AF7E2E1B3159}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlexBudget", "FlexBudget\FlexBudget.csproj", "{2989C4E4-B360-44D9-9E59-F5079399478B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UtilityTracker", "UtilityTracker\UtilityTracker.csproj", "{1A91C2F6-49DF-4399-8779-61F292A5AADC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{1D1DAC4E-5B4A-4BAD-A9E4-AF7E2E1B3159}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D1DAC4E-5B4A-4BAD-A9E4-AF7E2E1B3159}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D1DAC4E-5B4A-4BAD-A9E4-AF7E2E1B3159}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2989C4E4-B360-44D9-9E59-F5079399478B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2989C4E4-B360-44D9-9E59-F5079399478B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2989C4E4-B360-44D9-9E59-F5079399478B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2989C4E4-B360-44D9-9E59-F5079399478B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A91C2F6-49DF-4399-8779-61F292A5AADC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A91C2F6-49DF-4399-8779-61F292A5AADC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A91C2F6-49DF-4399-8779-61F292A5AADC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A91C2F6-49DF-4399-8779-61F292A5AADC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
