@@ -26,6 +26,8 @@ namespace UtilityTracker
         public decimal Cost { get; set; }
         public int Usage { get; set; }
         public string Vendor { get; set; }
+
+        public string Utility { get; set; }
     }
 
 
@@ -49,9 +51,9 @@ namespace UtilityTracker
 
             string costUsageFilePath = @"C:\Users\Nimap\Documents\UtilityTracker\InputFiles\Cost Usage.xlsx";
 
-            string utilityTrackerFilePath = @"C:\Users\Nimap\Documents\UtilityTracker\InputFiles\RE - Utility Tracker (2023-09).xlsx";
+            //string utilityTrackerFilePath = @"C:\Users\Nimap\Documents\UtilityTracker\InputFiles\RE - Utility Tracker (2023-09).xlsx";
 
-            //string utilityTrackerFilePath = @"C:\Users\Nimap\Documents\UtilityTracker\RE - Utility Tracker (2023-09).xlsx";
+            string utilityTrackerFilePath = @"C:\Users\Nimap\Documents\UtilityTracker\RE - Utility Tracker (2023-09).xlsx";
 
 
             Excel.Workbook costUsageWorkbook = excelApp.Workbooks.Open(costUsageFilePath);
@@ -60,6 +62,11 @@ namespace UtilityTracker
 
             try
             {
+                Worksheet utilitySheet = utilityTrackerWorkbook.Worksheets["Utility Data"];
+
+                Range clearRange = utilitySheet.Range["A2:I" + utilitySheet.UsedRange.Rows.Count];
+                clearRange.Clear();
+
                 Worksheet trackerSheet = utilityTrackerWorkbook.Worksheets["Conservice tracking"];
 
                 int trackerLastRow = trackerSheet.Cells[trackerSheet.Rows.Count, 1].End[Excel.XlDirection.xlUp].Row + 1;
@@ -107,7 +114,9 @@ namespace UtilityTracker
                                 BillDate = Convert.ToDateTime(costUsageSheet.Cells[i, 8].Value),   
                                 Cost = Convert.ToDecimal(costUsageSheet.Cells[i, 10].Value),       
                                 Usage = Convert.ToInt32(costUsageSheet.Cells[i, 11].Value),         
-                                Vendor = Convert.ToString(costUsageSheet.Cells[i, 13].Value)       
+                                Vendor = Convert.ToString(costUsageSheet.Cells[i, 13].Value),
+                                Utility = Convert.ToString(costUsageSheet.Cells[i, 12].Value),   
+                                
                             };
 
                             entityData.DataRows.Add(rowData);
@@ -140,7 +149,7 @@ namespace UtilityTracker
                 //    Console.WriteLine("================================");
                 //}
 
-                Worksheet utilitySheet = utilityTrackerWorkbook.Worksheets["Utility Data"];
+                //Worksheet utilitySheet = utilityTrackerWorkbook.Worksheets["Utility Data"];
 
                 int row = 2; 
 
@@ -155,8 +164,10 @@ namespace UtilityTracker
                         utilitySheet.Cells[row, 4].Value = rowData.StartDate;
                         utilitySheet.Cells[row, 5].Value = rowData.EndDate;
                         utilitySheet.Cells[row, 6].Value = rowData.BillDate;
-                        utilitySheet.Cells[row, 7].Value = rowData.Cost;
-                        utilitySheet.Cells[row, 8].Value = rowData.Usage;
+                        utilitySheet.Cells[row, 7].Value = rowData.Utility;
+                        utilitySheet.Cells[row, 8].Value = rowData.Cost;
+                        utilitySheet.Cells[row, 9].Value = rowData.Usage;
+
 
                         row++;
                     }
@@ -178,8 +189,9 @@ namespace UtilityTracker
                     DateTime? startdate = utilitySheet.Cells[i, 4].Value;
                     DateTime? enddate = utilitySheet.Cells[i, 5].Value;
                     DateTime? billdate = utilitySheet.Cells[i, 6].Value;
-                    decimal cost = Convert.ToDecimal(utilitySheet.Cells[i, 7].Value);
-                    int usage = Convert.ToInt32(utilitySheet.Cells[i, 8].Value);
+                    string utility = utilitySheet.Cells[i, 7].Value;
+                    decimal cost = Convert.ToDecimal(utilitySheet.Cells[i, 8].Value);
+                    int usage = Convert.ToInt32(utilitySheet.Cells[i, 9].Value);
 
                     int checkRow = i;
                     while(vendor != null)
@@ -190,8 +202,9 @@ namespace UtilityTracker
                         DateTime? duplicatestartdate = utilitySheet.Cells[checkRow, 4].Value;
                         DateTime? duplicateenddate = utilitySheet.Cells[checkRow, 5].Value;
                         DateTime? duplicatebilldate = utilitySheet.Cells[checkRow, 6].Value;
-                        decimal duplicatecost = Convert.ToDecimal(utilitySheet.Cells[checkRow, 7].Value);
-                        int duplicateusage = Convert.ToInt32(utilitySheet.Cells[checkRow, 8].Value);
+                        string duplicateutility = utilitySheet.Cells[i, 7].Value;
+                        decimal duplicatecost = Convert.ToDecimal(utilitySheet.Cells[checkRow, 8].Value);
+                        int duplicateusage = Convert.ToInt32(utilitySheet.Cells[checkRow, 9].Value);
 
                         if (duplicateVendor == null )
                         {
@@ -199,7 +212,7 @@ namespace UtilityTracker
                             break;
 
                         }
-                        if (vendor.Equals(duplicateVendor) && entity.Equals(duplicateentity) && startdate.Equals(duplicatestartdate) && enddate.Equals(duplicateenddate) && billdate.Equals(duplicatebilldate))
+                        if (vendor.Equals(duplicateVendor) && entity.Equals(duplicateentity) && startdate.Equals(duplicatestartdate) && enddate.Equals(duplicateenddate) && billdate.Equals(duplicatebilldate) && utility.Equals(duplicateentity))
                         {
 
                             cost = cost + duplicatecost;
