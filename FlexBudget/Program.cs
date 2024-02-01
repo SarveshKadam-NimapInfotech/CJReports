@@ -37,11 +37,15 @@ namespace FlexBudget
 
             try
             {
+                var managementFessFormulaValue = 3.44;
+
                 var date = "12/01/2023";
 
                 DateTime parsedDate = DateTime.ParseExact(date, "MM/dd/yyyy", CultureInfo.InvariantCulture);
 
                 int month = parsedDate.Month;
+
+                int year = parsedDate.Year;
 
                 int previousMonth = month - 1;
 
@@ -76,6 +80,15 @@ namespace FlexBudget
                             pasteFlexRange.PasteSpecial(XlPasteType.xlPasteAll);
 
                             // upload sheet task
+
+                            var uploadSheetFilterList = new object[]
+                           {
+                                "Management Fee Expense",
+                                "Delivery Charges"
+
+                           };
+                            Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
+                            sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
 
                             Range copyRange2 = uploadSheet.Range[$"E2:E{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
                             Range pasteRange2 = uploadSheet.Range[$"F2:F{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
@@ -118,6 +131,15 @@ namespace FlexBudget
 
                             // upload sheet task
 
+                            var uploadSheetFilterList = new object[]
+                           {
+                                "Management Fee Expense",
+                                "Delivery Charges"
+
+                           };
+                            Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
+                            sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+
                             Range copyRange2 = uploadSheet.Range[$"F2:F{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
                             Range pasteRange2 = uploadSheet.Range[$"G2:G{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
                             Range valuePasteRange2 = uploadSheet.Range[$"F2:F{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
@@ -158,6 +180,15 @@ namespace FlexBudget
                             pasteFlexRange.PasteSpecial(XlPasteType.xlPasteAll);
 
                             // upload sheet task
+
+                            var uploadSheetFilterList = new object[]
+                           {
+                                "Management Fee Expense",
+                                "Delivery Charges"
+
+                           };
+                            Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
+                            sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
 
                             Range copyRange2 = uploadSheet.Range[$"G2:G{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
                             Range pasteRange2 = uploadSheet.Range[$"H2:H{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
@@ -201,6 +232,15 @@ namespace FlexBudget
 
                             // upload sheet task
 
+                            var uploadSheetFilterList = new object[]
+                           {
+                                "Management Fee Expense",
+                                "Delivery Charges"
+
+                           };
+                            Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
+                            sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+
                             Range copyRange2 = uploadSheet.Range[$"H2:H{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
                             Range pasteRange2 = uploadSheet.Range[$"I2:I{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
                             Range valuePasteRange2 = uploadSheet.Range[$"H2:H{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
@@ -241,6 +281,15 @@ namespace FlexBudget
                             pasteFlexRange.PasteSpecial(XlPasteType.xlPasteAll);
 
                             // upload sheet task
+
+                            var uploadSheetFilterList = new object[]
+                           {
+                                "Management Fee Expense",
+                                "Delivery Charges"
+
+                           };
+                            Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
+                            sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
 
                             Range copyRange2 = uploadSheet.Range[$"I2:I{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
                             Range pasteRange2 = uploadSheet.Range[$"J2:J{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
@@ -283,6 +332,15 @@ namespace FlexBudget
 
                             // upload sheet task
 
+                            var uploadSheetFilterList = new object[]
+                           {
+                                "Management Fee Expense",
+                                "Delivery Charges"
+
+                           };
+                            Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
+                            sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+
                             Range copyRange2 = uploadSheet.Range[$"J2:J{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
                             Range pasteRange2 = uploadSheet.Range[$"K2:K{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
                             Range valuePasteRange2 = uploadSheet.Range[$"J2:J{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
@@ -323,6 +381,15 @@ namespace FlexBudget
 
                             // upload sheet task
 
+                            var uploadSheetFilterList = new object[]
+                           {
+                                "Management Fee Expense",
+                                "Delivery Charges"
+
+                           };
+                            Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
+                            sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+
                             Range copyRange2 = uploadSheet.Range[$"K2:K{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
                             Range pasteRange2 = uploadSheet.Range[$"L2:L{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
                             Range valuePasteRange2 = uploadSheet.Range[$"K2:K{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
@@ -362,6 +429,15 @@ namespace FlexBudget
                             pasteFlexRange.PasteSpecial(XlPasteType.xlPasteAll);
 
                             // upload sheet task
+
+                            var uploadSheetFilterList = new object[]
+                           {
+                                "Management Fee Expense",
+                                "Delivery Charges"
+
+                           };
+                            Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
+                            sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
 
                             Range copyRange2 = uploadSheet.Range[$"L2:L{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
                             Range pasteRange2 = uploadSheet.Range[$"M2:M{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
@@ -404,6 +480,15 @@ namespace FlexBudget
 
                             // upload sheet task
 
+                            var uploadSheetFilterList = new object[]
+                           {
+                                "Management Fee Expense",
+                                "Delivery Charges"
+
+                           };
+                            Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
+                            sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+
                             Range copyRange2 = uploadSheet.Range[$"M2:M{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
                             Range pasteRange2 = uploadSheet.Range[$"N2:N{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
                             Range valuePasteRange2 = uploadSheet.Range[$"M2:M{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
@@ -444,6 +529,15 @@ namespace FlexBudget
                             pasteFlexRange.PasteSpecial(XlPasteType.xlPasteAll);
 
                             // upload sheet task
+
+                            var uploadSheetFilterList = new object[]
+                           {
+                                "Management Fee Expense",
+                                "Delivery Charges"
+
+                           };
+                            Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
+                            sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
 
                             Range copyRange2 = uploadSheet.Range[$"N2:N{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
                             Range pasteRange2 = uploadSheet.Range[$"O2:O{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
@@ -486,6 +580,15 @@ namespace FlexBudget
 
                             // upload sheet task
 
+                            var uploadSheetFilterList = new object[]
+                            {
+                                "Management Fee Expense",
+                                "Delivery Charges"
+
+                            };
+                            Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
+                            sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+
                             Range copyRange2 = uploadSheet.Range[$"O2:O{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
                             Range pasteRange2 = uploadSheet.Range[$"P2:P{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
                             Range valuePasteRange2 = uploadSheet.Range[$"O2:O{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
@@ -503,6 +606,7 @@ namespace FlexBudget
                             valuePasteRange3.PasteSpecial(XlPasteType.xlPasteValues);
 
                             uploadCleanSheet.Range[$"P4:P359"].Formula = "=VLOOKUP(B4,'Upload (2)'!$B$22:$P$1600,15,FALSE)";
+
                         }
                         break;
 
@@ -527,20 +631,6 @@ namespace FlexBudget
                 Dictionary<string, List<string>> dict = new Dictionary<string, List<string>>();
 
                 int rawDataLastRow = RawDataPlSheet.Cells[RawDataPlSheet.Rows.Count, 1].End[Excel.XlDirection.xlUp].Row + 1;
-
-                string managementFees = string.Empty;
-                for (int i = 7; i <= rawDataLastRow; i++)
-                {
-                    var checkValueB = Convert.ToString(RawDataPlSheet.Cells[i, 2]);
-                    var checkvalueC = Convert.ToString(RawDataPlSheet.Cells[i, 3]);
-
-                    if( checkValueB == "Management Fees")
-                    {
-                        managementFees = checkvalueC;
-                        break;
-                    }
-
-                }
 
                 for (int i = 1; i <= rawDataLastRow; i++)
                 {
@@ -610,8 +700,8 @@ namespace FlexBudget
                             string value1 = values[j];
                             string value2 = (j + 1 < values.Count) ? values[j + 1] : "N/A";
 
-                            salesLoadSheet.Cells[startRowNetSales, 23].Value = value1; 
-                            salesLoadSheet.Cells[startRowNetSales, 24].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString(); 
+                            salesLoadSheet.Cells[startRowNetSales, 23].Value = value1;
+                            salesLoadSheet.Cells[startRowNetSales, 24].Value = value2; 
 
                             startRowNetSales++;
                         }
@@ -644,7 +734,55 @@ namespace FlexBudget
                     }
                 }
 
+
+                string managementFees = string.Empty;
+
+                for (int i = 1; i <= rawDataLastRow; i++)
+                {
+                    var cellB = RawDataPlSheet.Cells[i, 2];
+                    var cellC = RawDataPlSheet.Cells[i, 3];
+
+                    // Check if any of the cells are null
+                    if (cellB.Value != null)
+                    {
+                        string cellValueB = Convert.ToString(cellB.Value);
+                        string cellValueC = Convert.ToString(cellC?.Value);
+
+                        if(cellValueB.Contains("Management Fees"))
+                        {
+                            managementFees = cellValueC;
+                            break;
+                        }
+
+                    }
+                }
+
+
+
                 salesLoadSheet.Range["H17"].Value = managementFees;
+
+                salesLoadSheet.Range["H4"].Value = managementFessFormulaValue;
+
+                salesLoadSheet.Range["H7:H13"].Formula = $"=D7*$H$4%";
+
+                var managementFessValueH19 = Convert.ToDouble(salesLoadSheet.Range["H19"].Value);
+                salesLoadSheet.Range["H7:H13"].Formula = $"=D7*$H$4% {(managementFessValueH19 >= 0 ? "-" : "+")}{Math.Abs(managementFessValueH19)}";
+
+                //salesLoadSheet.Range["H7:H13"].Formula = $"=D8*{managementFessFormulaValue}%+{managementFessValueH19}";
+
+
+                var managementFessValueH18 = Convert.ToDouble(salesLoadSheet.Range["H18"].Value);
+                salesLoadSheet.Range["H7"].Formula = $"=D7*$H$4% {(managementFessValueH19 >= 0 ? "-" : "+")}{Math.Abs(managementFessValueH19)} - {managementFessValueH18}";
+
+                salesLoadSheet.Range["D3"].Value = monthName;
+                salesLoadSheet.Range["D4"].Value = month;
+
+                DateTime salesW5 = Convert.ToDateTime($"{monthName}-{year}");
+
+                Range cellW5 = salesLoadSheet.Range["W5"];
+                cellW5.Value = salesW5;
+
+                cellW5.NumberFormat = "MMM yyyy";
 
 
 

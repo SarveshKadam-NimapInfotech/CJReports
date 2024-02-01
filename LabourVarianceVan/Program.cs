@@ -364,6 +364,10 @@ namespace LabourVarianceVan
                 cellC4.Value = date;
 
                 Worksheet cjLabourSalesSheet = cjLabourWorkbook.Worksheets["Sales"];
+
+
+
+
                 var cjPreviousLabourDate = $"PPE {previousCjMonth}/{previousCjday}";
 
                 Excel.Range row2 = cjLabourSalesSheet.Rows[2];
