@@ -10,6 +10,7 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 namespace FlexBudget
 {
+  
     internal class Program
     {
         static void Main(string[] args)
@@ -17,6 +18,9 @@ namespace FlexBudget
             Program program = new Program();
             program.FlexBudget();
         }
+
+        
+
 
         public void FlexBudget()
         {
@@ -47,7 +51,16 @@ namespace FlexBudget
 
                 int year = parsedDate.Year;
 
-                int previousMonth = month - 1;
+                int previousMonth = 0;
+                if (month == 1)
+                {
+                    previousMonth = 12;
+                }
+                else
+                {
+                    previousMonth = month - 1;
+
+                }
 
                 string monthName = parsedDate.ToString("MMM", CultureInfo.InvariantCulture);
 
@@ -62,6 +75,103 @@ namespace FlexBudget
 
                 switch (month)
                 {
+                    case 1:
+                        if (previousMonth == 12)
+                        {
+                            Range copyRange1 = flexBudgetSheet.Range[$"AA8:AB{flexBudgetSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            Range pasteRange1 = flexBudgetSheet.Range[$"E8:F{flexBudgetSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            Range valuePasteRange = flexBudgetSheet.Range[$"AA8:AB{flexBudgetSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            valuePasteRange.PasteSpecial(XlPasteType.xlPasteValues);
+
+                            //flexBudgetSheet.Cells[5, 5].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(255, 217, 102));
+                            //flexBudgetSheet.Cells[5, 6].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(255, 217, 102));
+
+                            //flexBudgetSheet.Range["E5"].Value = "Flex";
+                            //flexBudgetSheet.Range["E6"].Value = "Flex";
+
+                            //for(int col = 7; col <= 28; col++)
+                            //{
+                            //    flexBudgetSheet.Cells[5, col].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(255, 255, 0));
+                            //    flexBudgetSheet.Cells[5, col].Value = "Fixed";
+                            //}
+
+                            //Range copyFlexRange = flexBudgetSheet.Range["E5:F5"];
+                            //Range pasteFlexRange = flexBudgetSheet.Range["G5:H5"];
+
+                            //copyFlexRange.Copy(Type.Missing);
+                            //pasteFlexRange.PasteSpecial(XlPasteType.xlPasteAll);
+
+                            // upload sheet task
+
+                            var uploadSheetFilterList = new object[]
+                           {
+                                "Management Fee Expense",
+                                "Delivery Charges"
+
+                           };
+                            Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
+                            sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+
+                            //Range copyRange2 = uploadSheet.Range[$"E2:E{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range pasteRange2 = uploadSheet.Range[$"F2:F{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range valuePasteRange2 = uploadSheet.Range[$"E2:E{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+
+                            //copyRange2.Copy(Type.Missing);
+                            //pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            //valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+
+                            Range filteredRangePaste = uploadSheet.Columns["E"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+                            Range filteredRangeCopy = uploadSheet.Columns["P"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+
+                            int i = 1;
+                            foreach (Range cell in filteredRangePaste)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "P"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Formula = uploadSheet.Cells[cell.Row, "P"].Formula;
+                                    i++;
+                                }
+
+                            }
+                            foreach (Range cell in filteredRangeCopy)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "P"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Value = uploadSheet.Cells[cell.Row, "P"].Value;
+                                    i++;
+                                }
+
+                            }
+
+                            //uploadClean sheet task
+
+                            Range copyRange3 = uploadCleanSheet.Range[$"P4:P{uploadCleanSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            Range valuePasteRange3 = uploadCleanSheet.Range[$"P4:P{uploadCleanSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+
+                            copyRange3.Copy(Type.Missing);
+                            valuePasteRange3.PasteSpecial(XlPasteType.xlPasteValues);
+
+                            uploadCleanSheet.Range[$"E4:E359"].Formula = "=VLOOKUP(B4,'Upload (2)'!$B$22:$P$1600,4,FALSE)";
+
+
+                        }
+                        break;
+
                     case 2:
                         if (previousMonth == 1)
                         {
@@ -90,13 +200,48 @@ namespace FlexBudget
                             Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
                             sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
 
-                            Range copyRange2 = uploadSheet.Range[$"E2:E{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range pasteRange2 = uploadSheet.Range[$"F2:F{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range valuePasteRange2 = uploadSheet.Range[$"E2:E{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range copyRange2 = uploadSheet.Range[$"E2:E{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range pasteRange2 = uploadSheet.Range[$"F2:F{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range valuePasteRange2 = uploadSheet.Range[$"E2:E{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
 
-                            copyRange2.Copy(Type.Missing);
-                            pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
-                            valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+                            //copyRange2.Copy(Type.Missing);
+                            //pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            //valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+
+                            Range filteredRangePaste = uploadSheet.Columns["F"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+                            Range filteredRangeCopy = uploadSheet.Columns["E"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+
+                            int i = 1;
+                            foreach (Range cell in filteredRangePaste)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "E"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Formula = uploadSheet.Cells[cell.Row, "E"].Formula;
+                                    i++;
+                                }
+
+                            }
+                            foreach (Range cell in filteredRangeCopy)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "E"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Value = uploadSheet.Cells[cell.Row, "E"].Value;
+                                    i++;
+                                }
+
+                            }
 
                             //uploadClean sheet task
 
@@ -140,13 +285,48 @@ namespace FlexBudget
                             Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
                             sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
 
-                            Range copyRange2 = uploadSheet.Range[$"F2:F{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range pasteRange2 = uploadSheet.Range[$"G2:G{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range valuePasteRange2 = uploadSheet.Range[$"F2:F{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range copyRange2 = uploadSheet.Range[$"F2:F{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range pasteRange2 = uploadSheet.Range[$"G2:G{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range valuePasteRange2 = uploadSheet.Range[$"F2:F{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
 
-                            copyRange2.Copy(Type.Missing);
-                            pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
-                            valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+                            //copyRange2.Copy(Type.Missing);
+                            //pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            //valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+
+                            Range filteredRangePaste = uploadSheet.Columns["G"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+                            Range filteredRangeCopy = uploadSheet.Columns["F"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+
+                            int i = 1;
+                            foreach (Range cell in filteredRangePaste)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "F"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Formula = uploadSheet.Cells[cell.Row, "F"].Formula;
+                                    i++;
+                                }
+
+                            }
+                            foreach (Range cell in filteredRangeCopy)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "F"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Value = uploadSheet.Cells[cell.Row, "F"].Value;
+                                    i++;
+                                }
+
+                            }
 
                             //uploadClean sheet task
 
@@ -190,13 +370,48 @@ namespace FlexBudget
                             Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
                             sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
 
-                            Range copyRange2 = uploadSheet.Range[$"G2:G{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range pasteRange2 = uploadSheet.Range[$"H2:H{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range valuePasteRange2 = uploadSheet.Range[$"G2:G{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range copyRange2 = uploadSheet.Range[$"G2:G{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range pasteRange2 = uploadSheet.Range[$"H2:H{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range valuePasteRange2 = uploadSheet.Range[$"G2:G{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
 
-                            copyRange2.Copy(Type.Missing);
-                            pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
-                            valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+                            //copyRange2.Copy(Type.Missing);
+                            //pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            //valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+
+                            Range filteredRangePaste = uploadSheet.Columns["H"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+                            Range filteredRangeCopy = uploadSheet.Columns["G"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+
+                            int i = 1;
+                            foreach (Range cell in filteredRangePaste)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "G"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Formula = uploadSheet.Cells[cell.Row, "G"].Formula;
+                                    i++;
+                                }
+
+                            }
+                            foreach (Range cell in filteredRangeCopy)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "G"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Value = uploadSheet.Cells[cell.Row, "G"].Value;
+                                    i++;
+                                }
+
+                            }
 
                             //uploadClean sheet task
 
@@ -241,13 +456,48 @@ namespace FlexBudget
                             Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
                             sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
 
-                            Range copyRange2 = uploadSheet.Range[$"H2:H{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range pasteRange2 = uploadSheet.Range[$"I2:I{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range valuePasteRange2 = uploadSheet.Range[$"H2:H{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range copyRange2 = uploadSheet.Range[$"H2:H{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range pasteRange2 = uploadSheet.Range[$"I2:I{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range valuePasteRange2 = uploadSheet.Range[$"H2:H{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
 
-                            copyRange2.Copy(Type.Missing);
-                            pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
-                            valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+                            //copyRange2.Copy(Type.Missing);
+                            //pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            //valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+
+                            Range filteredRangePaste = uploadSheet.Columns["I"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+                            Range filteredRangeCopy = uploadSheet.Columns["H"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+
+                            int i = 1;
+                            foreach (Range cell in filteredRangePaste)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "H"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Formula = uploadSheet.Cells[cell.Row, "H"].Formula;
+                                    i++;
+                                }
+
+                            }
+                            foreach (Range cell in filteredRangeCopy)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "H"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Value = uploadSheet.Cells[cell.Row, "H"].Value;
+                                    i++;
+                                }
+
+                            }
 
                             //uploadClean sheet task
 
@@ -291,13 +541,48 @@ namespace FlexBudget
                             Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
                             sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
 
-                            Range copyRange2 = uploadSheet.Range[$"I2:I{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range pasteRange2 = uploadSheet.Range[$"J2:J{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range valuePasteRange2 = uploadSheet.Range[$"I2:I{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range copyRange2 = uploadSheet.Range[$"I2:I{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range pasteRange2 = uploadSheet.Range[$"J2:J{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range valuePasteRange2 = uploadSheet.Range[$"I2:I{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
 
-                            copyRange2.Copy(Type.Missing);
-                            pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
-                            valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+                            //copyRange2.Copy(Type.Missing);
+                            //pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            //valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+
+                            Range filteredRangePaste = uploadSheet.Columns["J"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+                            Range filteredRangeCopy = uploadSheet.Columns["I"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+
+                            int i = 1;
+                            foreach (Range cell in filteredRangePaste)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "I"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Formula = uploadSheet.Cells[cell.Row, "I"].Formula;
+                                    i++;
+                                }
+
+                            }
+                            foreach (Range cell in filteredRangeCopy)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "I"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Value = uploadSheet.Cells[cell.Row, "I"].Value;
+                                    i++;
+                                }
+
+                            }
 
                             //uploadClean sheet task
 
@@ -341,13 +626,48 @@ namespace FlexBudget
                             Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
                             sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
 
-                            Range copyRange2 = uploadSheet.Range[$"J2:J{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range pasteRange2 = uploadSheet.Range[$"K2:K{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range valuePasteRange2 = uploadSheet.Range[$"J2:J{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range copyRange2 = uploadSheet.Range[$"J2:J{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range pasteRange2 = uploadSheet.Range[$"K2:K{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range valuePasteRange2 = uploadSheet.Range[$"J2:J{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
 
-                            copyRange2.Copy(Type.Missing);
-                            pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
-                            valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+                            //copyRange2.Copy(Type.Missing);
+                            //pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            //valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+
+                            Range filteredRangePaste = uploadSheet.Columns["K"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+                            Range filteredRangeCopy = uploadSheet.Columns["J"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+
+                            int i = 1;
+                            foreach (Range cell in filteredRangePaste)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "J"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Formula = uploadSheet.Cells[cell.Row, "J"].Formula;
+                                    i++;
+                                }
+
+                            }
+                            foreach (Range cell in filteredRangeCopy)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "J"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Value = uploadSheet.Cells[cell.Row, "J"].Value;
+                                    i++;
+                                }
+
+                            }
 
                             //uploadClean sheet task
 
@@ -390,13 +710,48 @@ namespace FlexBudget
                             Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
                             sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
 
-                            Range copyRange2 = uploadSheet.Range[$"K2:K{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range pasteRange2 = uploadSheet.Range[$"L2:L{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range valuePasteRange2 = uploadSheet.Range[$"K2:K{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range copyRange2 = uploadSheet.Range[$"K2:K{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range pasteRange2 = uploadSheet.Range[$"L2:L{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range valuePasteRange2 = uploadSheet.Range[$"K2:K{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
 
-                            copyRange2.Copy(Type.Missing);
-                            pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
-                            valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+                            //copyRange2.Copy(Type.Missing);
+                            //pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            //valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+
+                            Range filteredRangePaste = uploadSheet.Columns["L"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+                            Range filteredRangeCopy = uploadSheet.Columns["K"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+
+                            int i = 1;
+                            foreach (Range cell in filteredRangePaste)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "K"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Formula = uploadSheet.Cells[cell.Row, "K"].Formula;
+                                    i++;
+                                }
+
+                            }
+                            foreach (Range cell in filteredRangeCopy)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "K"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Value = uploadSheet.Cells[cell.Row, "K"].Value;
+                                    i++;
+                                }
+
+                            }
 
                             //uploadClean sheet task
 
@@ -439,13 +794,48 @@ namespace FlexBudget
                             Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
                             sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
 
-                            Range copyRange2 = uploadSheet.Range[$"L2:L{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range pasteRange2 = uploadSheet.Range[$"M2:M{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range valuePasteRange2 = uploadSheet.Range[$"L2:L{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range copyRange2 = uploadSheet.Range[$"L2:L{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range pasteRange2 = uploadSheet.Range[$"M2:M{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range valuePasteRange2 = uploadSheet.Range[$"L2:L{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
 
-                            copyRange2.Copy(Type.Missing);
-                            pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
-                            valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+                            //copyRange2.Copy(Type.Missing);
+                            //pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            //valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+
+                            Range filteredRangePaste = uploadSheet.Columns["M"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+                            Range filteredRangeCopy = uploadSheet.Columns["L"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+
+                            int i = 1;
+                            foreach (Range cell in filteredRangePaste)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "L"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Formula = uploadSheet.Cells[cell.Row, "L"].Formula;
+                                    i++;
+                                }
+
+                            }
+                            foreach (Range cell in filteredRangeCopy)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "L"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Value = uploadSheet.Cells[cell.Row, "L"].Value;
+                                    i++;
+                                }
+
+                            }
 
                             //uploadClean sheet task
 
@@ -489,13 +879,48 @@ namespace FlexBudget
                             Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
                             sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
 
-                            Range copyRange2 = uploadSheet.Range[$"M2:M{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range pasteRange2 = uploadSheet.Range[$"N2:N{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range valuePasteRange2 = uploadSheet.Range[$"M2:M{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range copyRange2 = uploadSheet.Range[$"M2:M{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range pasteRange2 = uploadSheet.Range[$"N2:N{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range valuePasteRange2 = uploadSheet.Range[$"M2:M{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
 
-                            copyRange2.Copy(Type.Missing);
-                            pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
-                            valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+                            //copyRange2.Copy(Type.Missing);
+                            //pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            //valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+
+                            Range filteredRangePaste = uploadSheet.Columns["N"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+                            Range filteredRangeCopy = uploadSheet.Columns["M"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+
+                            int i = 1;
+                            foreach (Range cell in filteredRangePaste)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "M"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Formula = uploadSheet.Cells[cell.Row, "M"].Formula;
+                                    i++;
+                                }
+
+                            }
+                            foreach (Range cell in filteredRangeCopy)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "M"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Value = uploadSheet.Cells[cell.Row, "M"].Value;
+                                    i++;
+                                }
+
+                            }
 
                             //uploadClean sheet task
 
@@ -539,13 +964,48 @@ namespace FlexBudget
                             Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
                             sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
 
-                            Range copyRange2 = uploadSheet.Range[$"N2:N{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range pasteRange2 = uploadSheet.Range[$"O2:O{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range valuePasteRange2 = uploadSheet.Range[$"N2:N{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range copyRange2 = uploadSheet.Range[$"N2:N{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range pasteRange2 = uploadSheet.Range[$"O2:O{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range valuePasteRange2 = uploadSheet.Range[$"N2:N{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
 
-                            copyRange2.Copy(Type.Missing);
-                            pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
-                            valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+                            //copyRange2.Copy(Type.Missing);
+                            //pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            //valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+
+                            Range filteredRangePaste = uploadSheet.Columns["O"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+                            Range filteredRangeCopy = uploadSheet.Columns["N"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+
+                            int i = 1;
+                            foreach (Range cell in filteredRangePaste)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "N"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Formula = uploadSheet.Cells[cell.Row, "N"].Formula;
+                                    i++;
+                                }
+
+                            }
+                            foreach (Range cell in filteredRangeCopy)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "N"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Value = uploadSheet.Cells[cell.Row, "N"].Value;
+                                    i++;
+                                }
+
+                            }
 
                             //uploadClean sheet task
 
@@ -589,13 +1049,48 @@ namespace FlexBudget
                             Range sourceRange = uploadSheet.Range[uploadSheet.Cells[1, 1], uploadSheet.Cells[1, uploadSheet.UsedRange.Column]];
                             sourceRange.AutoFilter(3, uploadSheetFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
 
-                            Range copyRange2 = uploadSheet.Range[$"O2:O{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range pasteRange2 = uploadSheet.Range[$"P2:P{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
-                            Range valuePasteRange2 = uploadSheet.Range[$"O2:O{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range copyRange2 = uploadSheet.Range[$"O2:O{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range pasteRange2 = uploadSheet.Range[$"P2:P{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
+                            //Range valuePasteRange2 = uploadSheet.Range[$"O2:O{uploadSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell).Row}"];
 
-                            copyRange2.Copy(Type.Missing);
-                            pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas);
-                            valuePasteRange2.PasteSpecial(XlPasteType.xlPasteValues);
+                            //copyRange2.Copy(Type.Missing);
+                            //pasteRange2.PasteSpecial(XlPasteType.xlPasteFormulas, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
+                            //copyRange2.PasteSpecial(XlPasteType.xlPasteValues, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
+
+                            Range filteredRangePaste = uploadSheet.Columns["P"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+                            Range filteredRangeCopy = uploadSheet.Columns["O"].SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+
+                            int i = 1; 
+                            foreach (Range cell in filteredRangePaste)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "O"].Value;
+
+                                if(filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Formula = uploadSheet.Cells[cell.Row, "O"].Formula;
+                                    i++;
+                                }
+
+                            }
+                            foreach (Range cell in filteredRangeCopy)
+                            {
+                                var filteredValue = uploadSheet.Cells[cell.Row, "O"].Value;
+
+                                if (filteredValue == null)
+                                {
+                                    break;
+                                }
+                                if (!filteredValue.ToString().Contains("Temp"))
+                                {
+                                    cell.Value = uploadSheet.Cells[cell.Row, "O"].Value;
+                                    i++;
+                                }
+
+                            }
 
                             //uploadClean sheet task
 
@@ -713,8 +1208,72 @@ namespace FlexBudget
                             string value1 = values[j];
                             string value2 = (j + 1 < values.Count) ? values[j + 1] : "N/A";
 
-                            actualIdealSheet.Cells[startRowLabourMatrix, 27].Value = value1; 
-                            actualIdealSheet.Cells[startRowLabourMatrix, 28].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString(); 
+                            switch (month)
+                            {
+                                case 1 :
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 5].Value = value1;
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 6].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 2 :
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 7].Value = value1;
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 8].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 3 :
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 9].Value = value1;
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 10].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 4 :
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 11].Value = value1;
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 12].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 5 :
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 13].Value = value1;
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 14].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 6 :
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 15].Value = value1;
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 16].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 7 :
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 17].Value = value1;
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 18].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 8 :
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 19].Value = value1;
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 20].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 9 :
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 21].Value = value1;
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 22].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 10 :
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 23].Value = value1;
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 24].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 11 :
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 25].Value = value1;
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 26].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 12 :
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 27].Value = value1;
+                                    actualIdealSheet.Cells[startRowLabourMatrix, 28].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                default:
+                                    break;
+
+                            }
 
                             startRowLabourMatrix++;
                         }
@@ -726,8 +1285,72 @@ namespace FlexBudget
                             string value1 = values[j];
                             string value2 = (j + 1 < values.Count) ? values[j + 1] : "N/A";
 
-                            actualIdealSheet.Cells[startRowIdealFoodCost, 27].Value = value1; 
-                            actualIdealSheet.Cells[startRowIdealFoodCost, 28].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString(); 
+                            switch (month)
+                            {
+                                case 1:
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 5].Value = value1;
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 6].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 2:
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 7].Value = value1;
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 8].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 3:
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 9].Value = value1;
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 10].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 4:
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 11].Value = value1;
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 12].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 5:
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 13].Value = value1;
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 14].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 6:
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 15].Value = value1;
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 16].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 7:
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 17].Value = value1;
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 18].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 8:
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 19].Value = value1;
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 20].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 9:
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 21].Value = value1;
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 22].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 10:
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 23].Value = value1;
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 24].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 11:
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 25].Value = value1;
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 26].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                case 12:
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 27].Value = value1;
+                                    actualIdealSheet.Cells[startRowIdealFoodCost, 28].Value = (value2 == "N/A") ? "N/A" : (double.Parse(value2) * 100).ToString();
+                                    break;
+
+                                default:
+                                    break;
+
+                            }
 
                             startRowIdealFoodCost++;
                         }
@@ -756,7 +1379,6 @@ namespace FlexBudget
 
                     }
                 }
-
 
 
                 salesLoadSheet.Range["H17"].Value = managementFees;
