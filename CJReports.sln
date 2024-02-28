@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UtilityTracker", "UtilityTr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrmFlexBudget", "FrmFlexBudget\FrmFlexBudget.csproj", "{80DEED6B-1255-4DFF-8939-70AEB288E3B1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "R&M", "R&M\R&M.csproj", "{E1B74661-2C9C-4CAC-B106-4D04F2CD1961}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SalesByDayParts", "SalesByDayParts\SalesByDayParts.csproj", "{D156794A-CB81-4D7B-AA03-6392391749FA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{80DEED6B-1255-4DFF-8939-70AEB288E3B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80DEED6B-1255-4DFF-8939-70AEB288E3B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{80DEED6B-1255-4DFF-8939-70AEB288E3B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1B74661-2C9C-4CAC-B106-4D04F2CD1961}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1B74661-2C9C-4CAC-B106-4D04F2CD1961}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1B74661-2C9C-4CAC-B106-4D04F2CD1961}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1B74661-2C9C-4CAC-B106-4D04F2CD1961}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D156794A-CB81-4D7B-AA03-6392391749FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D156794A-CB81-4D7B-AA03-6392391749FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D156794A-CB81-4D7B-AA03-6392391749FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D156794A-CB81-4D7B-AA03-6392391749FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
