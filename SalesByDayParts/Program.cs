@@ -26,12 +26,17 @@ namespace SalesByDayParts
             excelApp.DisplayClipboardWindow = false;
             excelApp.DisplayStatusBar = false;
 
-            string SalesByDayParts = @"C:\Users\Nimap\Documents\Sales by day part\Sales By Dayparts\Weekly\Sales By DayParts Week 48 CJSC.xlsx";
+            string SalesByDayParts = @"C:\Users\Nimap\Documents\Sales by day part\OneDrive_2024-03-01\Sales by DayParts\2024\Weekly\Sales By DayParts Week 7 CJSC.xlsx";
 
-            string CJSouthXpientCy = @"C:\Users\Nimap\Documents\Sales by day part\Sales By Dayparts\Weekly\CJ South Xpient 2023-12-04.xlsx";
+            string CJSouthXpientCy = @"C:\Users\Nimap\Documents\Sales by day part\OneDrive_2024-03-01\2024\2024\South\02-2024\CJ South Xpient 2024-02-26.xlsx";
 
-            string CJSouthXpientLy = @"C:\Users\Nimap\Documents\Sales by day part\Sales By Dayparts\Weekly\CJ South Xpient 2022-12-05.xlsx";
+            string CJSouthXpientLy = @"C:\Users\Nimap\Documents\Sales by day part\2023\2023\South\02-2023\CJ South Xpient 2023-02-27.xlsx";
 
+            string storeListFilePath = @"C:\Users\Public\Documents\StoreList.xlsx";
+
+            string storeTimmimgPath = @"C:\Users\Nimap\Documents\Sales by day part\Sales By Dayparts\Final 02.21.23 - 02.27.23.xlsm";
+
+            Excel.Workbook storeList = excelApp.Workbooks.Open(storeListFilePath);
 
             Excel.Workbook SalesByDayPartsWorkbook = excelApp.Workbooks.Open(SalesByDayParts);
 
@@ -39,12 +44,13 @@ namespace SalesByDayParts
 
             Excel.Workbook CJSouthXpientLyWorkbook = excelApp.Workbooks.Open(CJSouthXpientLy);
 
+            Excel.Workbook storeTimmimgWorkbook = excelApp.Workbooks.Open(storeTimmimgPath);
 
             try
             {
                 //date by Week Code
 
-                var date = "12/04/2023";
+                var date = "02/26/2024";
 
                 DateTime dateValue;
                 DateTime.TryParseExact(date, "MM/dd/yyyy", new CultureInfo("en-US"), DateTimeStyles.None, out dateValue);
@@ -52,7 +58,7 @@ namespace SalesByDayParts
                 cal = CultureInfo.CurrentCulture.Calendar;
 
                 var currentWeekNbr = cal.GetWeekOfYear(dateValue, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
-                //currentWeekNbr -= 1;
+                currentWeekNbr -= 1;
 
                 int previousWeekNbr;
                 if (currentWeekNbr == 1)
@@ -166,6 +172,15 @@ namespace SalesByDayParts
 
                 Worksheet newWeekSheet = SalesByDayPartsWorkbook.Worksheets[$"Week {currentWeekNbr}"];
 
+                Excel.Range cellA1 = newWeekSheet.Cells[1, 1];
+                Excel.Range cellA2 = newWeekSheet.Cells[1, 2];
+                Excel.Range unmergedRange = newWeekSheet.Range[cellA1, cellA2];
+                unmergedRange.UnMerge();
+                cellA1.Clear();
+                cellA2.Clear();
+
+                unmergedRange.Merge();
+                cellA1.MergeArea.Value = date;
 
                 int weekDataRow = newWeekSheet.Cells[newWeekSheet.Rows.Count, 1].End[Excel.XlDirection.xlUp].Row;
 
@@ -190,21 +205,33 @@ namespace SalesByDayParts
                     }
                 }
 
+                ytdSheet.Columns.AutoFit();
 
+                // SiteList Update
 
+                Worksheet cjListing = SalesByDayPartsWorkbook.Worksheets["Site List"];
+                Worksheet siteList = storeList.Worksheets[1];
 
+                Excel.Range copySiteRange = siteList.Range["A1:N" + siteList.Rows.Count];
+                copySiteRange.Copy(Type.Missing);
 
+                Excel.Range pasteSiteRange = cjListing.Range["A1:N" + cjListing.Rows.Count];
+                pasteSiteRange.PasteSpecial(XlPasteType.xlPasteAll);
 
+                //StoreTimming update
 
+                Worksheet salesStoreTimming = SalesByDayPartsWorkbook.Worksheets["Sheet2"];
+                Worksheet finalStoreTimmimg = storeTimmimgWorkbook.Worksheets["Summary"];
 
+                Excel.Range copyStoreRange = finalStoreTimmimg.Range["R1:V25"];
+                copyStoreRange.Copy(Type.Missing);
 
+                Excel.Range pasteStoreRange = salesStoreTimming.Range["A2:E25"];
+                pasteStoreRange.PasteSpecial(XlPasteType.xlPasteAll);
 
+                // Completed Logical code for South part
 
-
-
-
-
-
+                //Logical code for North
 
 
 
