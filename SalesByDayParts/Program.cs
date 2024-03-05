@@ -130,7 +130,102 @@ namespace SalesByDayParts
                 Excel.Range pasteLySummaryRange = salesLySheet.Range["A1:I" + salesLyLastRow];
                 pasteLySummaryRange.PasteSpecial(XlPasteType.xlPasteAll);
 
-                
+                // Adding the Dynamic rows for new Week
+
+                Worksheet storePriorSheet = SalesByDayPartsWorkbook.Worksheets["Store % of Prior"];
+
+                int storePriorLastRow = storePriorSheet.Cells[storePriorSheet.Rows.Count, 1].End[Excel.XlDirection.xlUp].Row + 5;
+
+                int StorePriorAboveRow = storePriorLastRow - 5;
+
+                Excel.Range copyStorePriorRange = storePriorSheet.Range[$"A{StorePriorAboveRow}:K{storePriorLastRow}"];
+                copyStorePriorRange.Copy(Type.Missing);
+
+                Excel.Range pasteStorePriorRange = storePriorSheet.Range[$"A{storePriorLastRow + 1}:K{storePriorLastRow + 6}"];
+                pasteStorePriorRange.PasteSpecial(XlPasteType.xlPasteAll);
+
+                Excel.Range storePriorFormulaChangeRange1 = storePriorSheet.Range[$"D{storePriorLastRow + 1}:K{storePriorLastRow + 1}"];
+
+                storePriorFormulaChangeRange1.Formula = $"=XLOOKUP(D$2, 'Week {currentWeekNbr}'!$A:$A, 'Week {currentWeekNbr}'!$F:$F, 0, 0, 1)";
+
+                Excel.Range storePriorFormulaChangeRange2 = storePriorSheet.Range[$"D{storePriorLastRow + 2}:K{storePriorLastRow + 2}"];
+
+                storePriorFormulaChangeRange2.Formula = $"=XLOOKUP(D$2, 'Week {currentWeekNbr}'!$A:$A, 'Week {currentWeekNbr}'!$K:$K, 0, 0, 1)";
+
+                Excel.Range storePriorFormulaChangeRange3 = storePriorSheet.Range[$"D{storePriorLastRow + 3}:K{storePriorLastRow + 3}"];
+
+                storePriorFormulaChangeRange3.Formula = $"=XLOOKUP(D$2, 'Week {currentWeekNbr}'!$A:$A, 'Week {currentWeekNbr}'!$P:$P, 0, 0, 1)";
+
+                Excel.Range storePriorFormulaChangeRange4 = storePriorSheet.Range[$"D{storePriorLastRow + 4}:K{storePriorLastRow + 4}"];
+
+                storePriorFormulaChangeRange4.Formula = $"=XLOOKUP(D$2, 'Week {currentWeekNbr}'!$A:$A, 'Week {currentWeekNbr}'!$U:$U, 0, 0, 1)";
+
+                Excel.Range storePriorFormulaChangeRange5 = storePriorSheet.Range[$"D{storePriorLastRow + 5}:K{storePriorLastRow + 5}"];
+
+                storePriorFormulaChangeRange5.Formula = $"=XLOOKUP(D$2, 'Week {currentWeekNbr}'!$A:$A, 'Week {currentWeekNbr}'!$Z:$Z, 0, 0, 1)";
+
+                Excel.Range storePriorFormulaChangeRange6 = storePriorSheet.Range[$"D{storePriorLastRow + 6}:K{storePriorLastRow + 6}"];
+
+                storePriorFormulaChangeRange6.Formula = $"=XLOOKUP(D$2, 'Week {currentWeekNbr}'!$A:$A, 'Week {currentWeekNbr}'!$AE:$AE, 0, 0, 1)";
+
+                // SiteList Update
+
+                Worksheet cjListing = SalesByDayPartsWorkbook.Worksheets["Site List"];
+                Worksheet siteList = storeList.Worksheets[1];
+
+                Excel.Range copySiteRange = siteList.Range["A1:N" + siteList.Rows.Count];
+                copySiteRange.Copy(Type.Missing);
+
+                Excel.Range pasteSiteRange = cjListing.Range["A1:N" + cjListing.Rows.Count];
+                pasteSiteRange.PasteSpecial(XlPasteType.xlPasteAll);
+
+                // Fetching weekly data 
+
+                Worksheet newWeekSheet = SalesByDayPartsWorkbook.Worksheets[$"Week {currentWeekNbr}"];
+
+                Excel.Range cellA1 = newWeekSheet.Cells[1, 1];
+                Excel.Range cellA2 = newWeekSheet.Cells[1, 2];
+                Excel.Range unmergedRange = newWeekSheet.Range[cellA1, cellA2];
+                unmergedRange.UnMerge();
+                cellA1.Clear();
+                cellA2.Clear();
+
+                unmergedRange.Merge();
+                cellA1.MergeArea.Value = date;
+
+                Range mergedRange = cellA1.MergeArea;
+                mergedRange.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                mergedRange.Font.Bold = true;
+                mergedRange.Interior.Color = XlRgbColor.rgbYellow;
+
+                int weekDataRow = newWeekSheet.Cells[newWeekSheet.Rows.Count, 1].End[Excel.XlDirection.xlUp].Row;
+
+                Excel.Range weekDataRange = newWeekSheet.Range[$"C{weekDataRow}:AE{weekDataRow}"];
+                weekDataRange.Copy(Type.Missing);
+
+                Worksheet ytdSheet = SalesByDayPartsWorkbook.Worksheets["YTD-2023"];
+
+                int ytdLastRow = ytdSheet.Cells[ytdSheet.Rows.Count, 1].End[Excel.XlDirection.xlUp].Row;
+
+                for (int i = 1; i < ytdLastRow; i++)
+                {
+                    string weekData = Convert.ToString(ytdSheet.Cells[i, 1].Value);
+
+                    if (!string.IsNullOrEmpty(weekData) && weekData.Equals(Convert.ToString(currentWeekNbr)))
+                    {
+                        Excel.Range ytdDataRange = ytdSheet.Range[$"C{i}:AE{i}"];
+                        ytdDataRange.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        ytdSheet.Rows.Hidden = false;
+                        Range rowsToHide = ytdSheet.Rows[$"{i + 1}:{ytdLastRow - 1}"];
+                        rowsToHide.Hidden = true;
+
+                        break;
+
+                    }
+                }
+
+                ytdSheet.Columns.AutoFit();
 
             }
             catch (Exception ex)
