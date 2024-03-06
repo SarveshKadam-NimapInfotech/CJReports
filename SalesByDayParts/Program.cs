@@ -227,6 +227,35 @@ namespace SalesByDayParts
 
                 ytdSheet.Columns.AutoFit();
 
+                Worksheet siteListSheet = SalesByDayPartsWorkbook.Worksheets["Site List"];
+                
+                int siteListLastRow = siteListSheet.Cells[siteListSheet.Rows.Count, 1].End[Excel.XlDirection.xlUp].Row;
+
+                bool foundNorth = false;
+
+                for (int i = 1;i < siteListLastRow; i++)
+                {
+                    string cellValue = Convert.ToString(siteListSheet.Cells[i, 1].Value);
+
+                    if (foundNorth)
+                    {
+                        if (cellValue.Length == 3)
+                        {
+                            
+                            var updatedCellValue = "0" + cellValue;
+                            Range cellToChange = siteListSheet.Cells[i, 1];
+                            cellToChange.NumberFormat = "@"; // Set cell format to text
+                            cellToChange.Value = updatedCellValue;
+                            
+                        }
+
+                    }
+                    else if (cellValue != null && cellValue.Contains("North"))
+                    {
+                        foundNorth = true;
+                    }
+                }
+
             }
             catch (Exception ex)
             {
