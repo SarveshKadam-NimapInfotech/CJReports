@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Windows.Media;
 using Microsoft.Office.Interop.Excel;
 using Excel = Microsoft.Office.Interop.Excel;
 
@@ -30,7 +29,7 @@ namespace SalesTax
 
             string salesTaxFilePath = @"C:\Users\Nimap\Documents\SalesTax\CA Sales Tax 1Qtr 2024-02 Excl EBT Sales.xlsx";
 
-            string glFilePath = @"";
+            string glFilePath = @"C:\Users\Nimap\Documents\SalesTax\All Live GL 2023-2024 updated.xlsx";
 
             Excel.Workbook salesTaxWorkbook = excelApp.Workbooks.Open(salesTaxFilePath);
 
@@ -38,22 +37,23 @@ namespace SalesTax
 
             try
             {
-                var date = "02/29/2023";
-
+                string date = "02/29/2024";
                 DateTime parsedDate = DateTime.ParseExact(date, "MM/dd/yyyy", CultureInfo.InvariantCulture);
 
-                int month = parsedDate.Month;
+                int monthInt = parsedDate.Month;
 
-                int year = parsedDate.Year;
+                string month = Convert.ToString(parsedDate.Month);
+
+                string year = Convert.ToString(parsedDate.Year);
 
                 int previousMonth = 0;
-                if (month == 1)
+                if (monthInt == 1)
                 {
                     previousMonth = 12;
                 }
                 else
                 {
-                    previousMonth = month - 1;
+                    previousMonth = monthInt - 1;
 
                 }
 
@@ -64,9 +64,9 @@ namespace SalesTax
 
                 salesTaxSummarySheet.Range["B2"].Value = month;
                 salesTaxSummarySheet.Range["B3"].Value = year;
-                salesTaxSummarySheet.Range["B3"].Value = date;
+                salesTaxSummarySheet.Range["B4"].Value = date;
 
-                switch (month)
+                switch (monthInt)
                 {
                     case 2:
                         if (previousMonth == 1)
@@ -215,7 +215,72 @@ namespace SalesTax
                         break;
                 }
 
-                 
+                Worksheet glSheet = glWorkbook.Worksheets[1];
+
+
+                var glSheetFilterList1 = new object[]
+                {
+                    year
+                };
+
+                var glSheetFilterList2 = new object[]
+                {
+                    month
+                };
+
+                var glSheetFilterList3 = new object[]
+                {
+                    "Sales Tax Payable"
+                };
+
+                var glSheetFilterList4 = new object[]
+                {
+                    "Bank JE"
+
+                };
+
+                Range sourceRange = glSheet.Range[glSheet.Cells[1, 1], glSheet.Cells[1, glSheet.UsedRange.Column]];
+                glSheet.ShowAllData();
+                sourceRange.AutoFilter(3, glSheetFilterList1, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(4, glSheetFilterList2, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(10, glSheetFilterList3, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(13, glSheetFilterList4, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+
+                Range filteredRange = sourceRange.SpecialCells(XlCellType.xlCellTypeVisible);
+
+                Range copyRange = glSheet.Range["A1:W" + glSheet.Rows.Count];
+
+                Worksheet newSheet = glWorkbook.Worksheets.Add();
+
+                Range pasteRange = newSheet.Range["A1:W" + newSheet.Rows.Count];
+
+                copyRange.Copy(Type.Missing);
+                pasteRange.PasteSpecial(XlPasteType.xlPasteAll);
+
+
+                List<KeyValuePair<string, string>> dataList = new List<KeyValuePair<string, string>>();
+
+                int newSheetLastRow = newSheet.Cells[newSheet.Rows.Count, 1].End[Excel.XlDirection.xlUp].Row;
+
+                for (int i = 2; i <= newSheetLastRow; i++)
+                {
+                    string key = newSheet.Cells[i, 2].Value2?.ToString();
+
+                    string value = newSheet.Cells[i, 14].Value2?.ToString();
+
+                    if (!string.IsNullOrEmpty(key) && !string.IsNullOrEmpty(value))
+                    {
+                        dataList.Add(new KeyValuePair<string, string>(key, value));
+                    }
+                }
+
+                newSheet.Delete();
+
+
+
+
+
+
             }
             catch (Exception ex)
             {
