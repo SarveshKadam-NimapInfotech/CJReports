@@ -353,14 +353,14 @@ namespace SalesTax
 
                 Range filteredRange1 = sourceRange.SpecialCells(XlCellType.xlCellTypeVisible);
 
-                Range copyRange1 = glSheet.Range["A1:W" + glSheet.Rows.Count];
+                Range copyRange2 = glSheet.Range["A1:W" + glSheet.Rows.Count];
 
                 Worksheet newSheet1 = glWorkbook.Worksheets.Add();
 
-                Range pasteRange1 = newSheet.Range["A1:W" + newSheet.Rows.Count];
+                Range pasteRange2 = newSheet.Range["A1:W" + newSheet.Rows.Count];
 
-                copyRange1.Copy(Type.Missing);
-                pasteRange1.PasteSpecial(XlPasteType.xlPasteAll);
+                copyRange2.Copy(Type.Missing);
+                pasteRange2.PasteSpecial(XlPasteType.xlPasteAll);
 
 
 
