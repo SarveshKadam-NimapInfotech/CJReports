@@ -276,6 +276,95 @@ namespace SalesTax
 
                 newSheet.Delete();
 
+                //foreach (var pair in dataList)
+                //{
+                //    // Find the key in column B of the summary sheet
+                //    Excel.Range keyRange = salesTaxSummarySheet.Range["B18:B24"].Find(pair.Key, Type.Missing,
+                //        Excel.XlFindLookIn.xlValues, Excel.XlLookAt.xlWhole, Excel.XlSearchOrder.xlByRows,
+                //        Excel.XlSearchDirection.xlNext, false, false, Type.Missing);
+
+                //    // If the key is found
+                //    if (keyRange != null)
+                //    {
+                //        // Get the row number where the key is found
+                //        int keyRow = keyRange.Row;
+
+                //        // Print the value in the corresponding row of column C
+                //        salesTaxSummarySheet.Cells[keyRow, 3].Value2 = pair.Value;
+                //    }
+                //}
+
+                foreach (var pair in dataList)
+                {
+                    if (pair.Key.Length >= 2)
+                    {
+                        string prefix = pair.Key.Substring(0, 2);
+
+                        Excel.Range searchRange = salesTaxSummarySheet.Range["B18:B24"];
+
+                        foreach (Excel.Range cell in searchRange)
+                        {
+                            string cellValue = cell.Value2?.ToString();
+
+                            if (!string.IsNullOrEmpty(cellValue) && cellValue.StartsWith(prefix))
+                            {
+                                int keyRow = cell.Row;
+
+                                salesTaxSummarySheet.Cells[keyRow, 3].Value2 = pair.Value;
+
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                //glSheet.AutoFilterMode = false;
+
+                var glSheetFilterList5 = new object[]
+                {
+                    year
+                };
+
+                var glSheetFilterList6 = new object[]
+                {
+                    month
+                };
+
+                var glSheetFilterList7 = new object[]
+                {
+                    "Sales Tax Payable"
+                };
+
+                var glSheetFilterList8 = new object[]
+                {
+                    "Sales",
+                    "Sales Refund-3rd Party-02.2024",
+                    "Uber Sales Tax-02.2024"
+
+
+                };
+
+                //Range sourceRange = glSheet.Range[glSheet.Cells[1, 1], glSheet.Cells[1, glSheet.UsedRange.Column]];
+                glSheet.ShowAllData();
+                sourceRange.AutoFilter(3, glSheetFilterList5, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(4, glSheetFilterList6, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(10, glSheetFilterList7, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(13, glSheetFilterList8, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+
+                Range filteredRange1 = sourceRange.SpecialCells(XlCellType.xlCellTypeVisible);
+
+                Range copyRange1 = glSheet.Range["A1:W" + glSheet.Rows.Count];
+
+                Worksheet newSheet1 = glWorkbook.Worksheets.Add();
+
+                Range pasteRange1 = newSheet.Range["A1:W" + newSheet.Rows.Count];
+
+                copyRange1.Copy(Type.Missing);
+                pasteRange1.PasteSpecial(XlPasteType.xlPasteAll);
+
+
+
+
 
 
 
