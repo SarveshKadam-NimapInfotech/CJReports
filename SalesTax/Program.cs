@@ -294,30 +294,321 @@ namespace SalesTax
                 //    }
                 //}
 
-                foreach (var pair in dataList)
+                switch (monthInt)
                 {
-                    if (pair.Key.Length >= 2)
-                    {
-                        string prefix = pair.Key.Substring(0, 2);
-
-                        Excel.Range searchRange = salesTaxSummarySheet.Range["B18:B24"];
-
-                        foreach (Excel.Range cell in searchRange)
+                    case 2:
+                       
+                        foreach (var pair in dataList)
                         {
-                            string cellValue = cell.Value2?.ToString();
-
-                            if (!string.IsNullOrEmpty(cellValue) && cellValue.StartsWith(prefix))
+                            if (pair.Key.Length >= 2)
                             {
-                                int keyRow = cell.Row;
+                                string prefix = pair.Key.Substring(0, 2);
 
-                                salesTaxSummarySheet.Cells[keyRow, 3].Value2 = pair.Value;
+                                Excel.Range searchRange = salesTaxSummarySheet.Range["B18:B24"];
 
-                                break;
+                                foreach (Excel.Range cell in searchRange)
+                                {
+                                    string cellValue = cell.Value2?.ToString();
+
+                                    if (!string.IsNullOrEmpty(cellValue) && cellValue.StartsWith(prefix))
+                                    {
+                                        int keyRow = cell.Row;
+
+                                        salesTaxSummarySheet.Cells[keyRow, 3].Value2 = pair.Value;
+
+                                        break;
+                                    }
+                                }
                             }
                         }
-                    }
-                }
+                        
+                        break;
 
+                    case 3:
+
+                        foreach (var pair in dataList)
+                        {
+                            if (pair.Key.Length >= 2)
+                            {
+                                string prefix = pair.Key.Substring(0, 2);
+
+                                Excel.Range searchRange = salesTaxSummarySheet.Range["B18:B24"];
+
+                                foreach (Excel.Range cell in searchRange)
+                                {
+                                    string cellValue = cell.Value2?.ToString();
+
+                                    if (!string.IsNullOrEmpty(cellValue) && cellValue.StartsWith(prefix))
+                                    {
+                                        int keyRow = cell.Row;
+
+                                        salesTaxSummarySheet.Cells[keyRow, 4].Value2 = pair.Value;
+
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        break;
+
+                    case 4:
+
+                        foreach (var pair in dataList)
+                        {
+                            if (pair.Key.Length >= 2)
+                            {
+                                string prefix = pair.Key.Substring(0, 2);
+
+                                Excel.Range searchRange = salesTaxSummarySheet.Range["B18:B24"];
+
+                                foreach (Excel.Range cell in searchRange)
+                                {
+                                    string cellValue = cell.Value2?.ToString();
+
+                                    if (!string.IsNullOrEmpty(cellValue) && cellValue.StartsWith(prefix))
+                                    {
+                                        int keyRow = cell.Row;
+
+                                        salesTaxSummarySheet.Cells[keyRow, 5].Value2 = pair.Value;
+
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        break;
+
+                    case 5:
+
+                        foreach (var pair in dataList)
+                        {
+                            if (pair.Key.Length >= 2)
+                            {
+                                string prefix = pair.Key.Substring(0, 2);
+
+                                Excel.Range searchRange = salesTaxSummarySheet.Range["B18:B24"];
+
+                                foreach (Excel.Range cell in searchRange)
+                                {
+                                    string cellValue = cell.Value2?.ToString();
+
+                                    if (!string.IsNullOrEmpty(cellValue) && cellValue.StartsWith(prefix))
+                                    {
+                                        int keyRow = cell.Row;
+
+                                        salesTaxSummarySheet.Cells[keyRow, 6].Value2 = pair.Value;
+
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+
+                        break;
+
+                    case 6:
+
+                        foreach (var pair in dataList)
+                        {
+                            if (pair.Key.Length >= 2)
+                            {
+                                string prefix = pair.Key.Substring(0, 2);
+
+                                Excel.Range searchRange = salesTaxSummarySheet.Range["B18:B24"];
+
+                                foreach (Excel.Range cell in searchRange)
+                                {
+                                    string cellValue = cell.Value2?.ToString();
+
+                                    if (!string.IsNullOrEmpty(cellValue) && cellValue.StartsWith(prefix))
+                                    {
+                                        int keyRow = cell.Row;
+
+                                        salesTaxSummarySheet.Cells[keyRow, 7].Value2 = pair.Value;
+
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        break;
+
+                    case 7:
+
+                        foreach (var pair in dataList)
+                        {
+                            if (pair.Key.Length >= 2)
+                            {
+                                string prefix = pair.Key.Substring(0, 2);
+
+                                Excel.Range searchRange = salesTaxSummarySheet.Range["B18:B24"];
+
+                                foreach (Excel.Range cell in searchRange)
+                                {
+                                    string cellValue = cell.Value2?.ToString();
+
+                                    if (!string.IsNullOrEmpty(cellValue) && cellValue.StartsWith(prefix))
+                                    {
+                                        int keyRow = cell.Row;
+
+                                        salesTaxSummarySheet.Cells[keyRow, 8].Value2 = pair.Value;
+
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        break;
+
+                    case 8:
+
+                        foreach (var pair in dataList)
+                        {
+                            if (pair.Key.Length >= 2)
+                            {
+                                string prefix = pair.Key.Substring(0, 2);
+
+                                Excel.Range searchRange = salesTaxSummarySheet.Range["B18:B24"];
+
+                                foreach (Excel.Range cell in searchRange)
+                                {
+                                    string cellValue = cell.Value2?.ToString();
+
+                                    if (!string.IsNullOrEmpty(cellValue) && cellValue.StartsWith(prefix))
+                                    {
+                                        int keyRow = cell.Row;
+
+                                        salesTaxSummarySheet.Cells[keyRow, 9].Value2 = pair.Value;
+
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        break;
+
+                    case 9:
+
+                        foreach (var pair in dataList)
+                        {
+                            if (pair.Key.Length >= 2)
+                            {
+                                string prefix = pair.Key.Substring(0, 2);
+
+                                Excel.Range searchRange = salesTaxSummarySheet.Range["B18:B24"];
+
+                                foreach (Excel.Range cell in searchRange)
+                                {
+                                    string cellValue = cell.Value2?.ToString();
+
+                                    if (!string.IsNullOrEmpty(cellValue) && cellValue.StartsWith(prefix))
+                                    {
+                                        int keyRow = cell.Row;
+
+                                        salesTaxSummarySheet.Cells[keyRow, 10].Value2 = pair.Value;
+
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        break;
+
+                    case 10:
+
+                        foreach (var pair in dataList)
+                        {
+                            if (pair.Key.Length >= 2)
+                            {
+                                string prefix = pair.Key.Substring(0, 2);
+
+                                Excel.Range searchRange = salesTaxSummarySheet.Range["B18:B24"];
+
+                                foreach (Excel.Range cell in searchRange)
+                                {
+                                    string cellValue = cell.Value2?.ToString();
+
+                                    if (!string.IsNullOrEmpty(cellValue) && cellValue.StartsWith(prefix))
+                                    {
+                                        int keyRow = cell.Row;
+
+                                        salesTaxSummarySheet.Cells[keyRow, 11].Value2 = pair.Value;
+
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        break;
+
+                    case 11:
+
+                        foreach (var pair in dataList)
+                        {
+                            if (pair.Key.Length >= 2)
+                            {
+                                string prefix = pair.Key.Substring(0, 2);
+
+                                Excel.Range searchRange = salesTaxSummarySheet.Range["B18:B24"];
+
+                                foreach (Excel.Range cell in searchRange)
+                                {
+                                    string cellValue = cell.Value2?.ToString();
+
+                                    if (!string.IsNullOrEmpty(cellValue) && cellValue.StartsWith(prefix))
+                                    {
+                                        int keyRow = cell.Row;
+
+                                        salesTaxSummarySheet.Cells[keyRow, 12].Value2 = pair.Value;
+
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        break;
+
+                    case 12:
+
+                        foreach (var pair in dataList)
+                        {
+                            if (pair.Key.Length >= 2)
+                            {
+                                string prefix = pair.Key.Substring(0, 2);
+
+                                Excel.Range searchRange = salesTaxSummarySheet.Range["B18:B24"];
+
+                                foreach (Excel.Range cell in searchRange)
+                                {
+                                    string cellValue = cell.Value2?.ToString();
+
+                                    if (!string.IsNullOrEmpty(cellValue) && cellValue.StartsWith(prefix))
+                                    {
+                                        int keyRow = cell.Row;
+
+                                        salesTaxSummarySheet.Cells[keyRow, 13].Value2 = pair.Value;
+
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        break;
+
+                    default:
+                        break;
+                }
+                
                 //glSheet.AutoFilterMode = false;
 
                 var glSheetFilterList5 = new object[]
@@ -357,10 +648,66 @@ namespace SalesTax
 
                 Worksheet newSheet1 = glWorkbook.Worksheets.Add();
 
-                Range pasteRange2 = newSheet.Range["A1:W" + newSheet.Rows.Count];
+                Range pasteRange2 = newSheet1.Range["A1:W" + newSheet1.Rows.Count];
 
                 copyRange2.Copy(Type.Missing);
                 pasteRange2.PasteSpecial(XlPasteType.xlPasteAll);
+
+                Worksheet Pivot = newSheet1;
+                Range pivotData = newSheet1.Range[$"A:W"];
+
+                PivotTable pivotTable = newSheet1.PivotTableWizard(XlPivotTableSourceType.xlDatabase, pivotData, Pivot.Range["Z2"], "PIVOT");
+
+                PivotField amountFields = pivotTable.PivotFields("Amount");
+                amountFields.Orientation = XlPivotFieldOrientation.xlDataField;
+                amountFields.Function = XlConsolidationFunction.xlSum;
+
+                PivotField storeFields = pivotTable.PivotFields("Entity");
+                storeFields.Orientation = XlPivotFieldOrientation.xlRowField;
+
+                Range pivotCopyRange = newSheet1.Range["Z2:AA12"];
+                Range pivotPasteRange = newSheet1.Range["Z14:AA24"];
+
+                pivotCopyRange.Copy(Type.Missing);
+                pivotPasteRange.PasteSpecial(XlPasteType.xlPasteValues);
+
+                List<KeyValuePair<string, string>> pivotDataList = new List<KeyValuePair<string, string>>();
+
+                for (int i = 14; i <= 24; i++)
+                {
+                    string key = newSheet1.Cells[i, 26].Value2?.ToString();
+
+                    string value = newSheet1.Cells[i, 27].Value2?.ToString();
+
+                    if (!string.IsNullOrEmpty(key) && !string.IsNullOrEmpty(value))
+                    {
+                        pivotDataList.Add(new KeyValuePair<string, string>(key, value));
+                    }
+                }
+
+                foreach (var pair in pivotDataList)
+                {
+                    if (pair.Key.Length >= 2)
+                    {
+                        string prefix = pair.Key.Substring(0, 2);
+
+                        Excel.Range searchRange = salesTaxSummarySheet.Range["B18:B24"];
+
+                        foreach (Excel.Range cell in searchRange)
+                        {
+                            string cellValue = cell.Value2?.ToString();
+
+                            if (!string.IsNullOrEmpty(cellValue) && cellValue.StartsWith(prefix))
+                            {
+                                int keyRow = cell.Row;
+
+                                salesTaxSummarySheet.Cells[keyRow, 3].Value2 = pair.Value;
+
+                                break;
+                            }
+                        }
+                    }
+                }
 
 
 
