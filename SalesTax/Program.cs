@@ -4,6 +4,8 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Windows.Ink;
 using Microsoft.Office.Interop.Excel;
 using Excel = Microsoft.Office.Interop.Excel;
 
@@ -218,22 +220,22 @@ namespace SalesTax
                 Worksheet glSheet = glWorkbook.Worksheets[1];
 
 
-                var glSheetFilterList1 = new object[]
+                var glSheetFilterListYear = new object[]
                 {
                     year
                 };
 
-                var glSheetFilterList2 = new object[]
+                var glSheetFilterListMonth = new object[]
                 {
                     month
                 };
 
-                var glSheetFilterList3 = new object[]
+                var glSheetFilterList1 = new object[]
                 {
                     "Sales Tax Payable"
                 };
 
-                var glSheetFilterList4 = new object[]
+                var glSheetFilterList2 = new object[]
                 {
                     "Bank JE"
 
@@ -241,12 +243,12 @@ namespace SalesTax
 
                 Range sourceRange = glSheet.Range[glSheet.Cells[1, 1], glSheet.Cells[1, glSheet.UsedRange.Column]];
                 glSheet.ShowAllData();
-                sourceRange.AutoFilter(3, glSheetFilterList1, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
-                sourceRange.AutoFilter(4, glSheetFilterList2, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
-                sourceRange.AutoFilter(10, glSheetFilterList3, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
-                sourceRange.AutoFilter(13, glSheetFilterList4, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(3, glSheetFilterListYear, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(4, glSheetFilterListMonth, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(10, glSheetFilterList1, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(13, glSheetFilterList2, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
 
-                Range filteredRange = sourceRange.SpecialCells(XlCellType.xlCellTypeVisible);
+                //Range filteredRange = sourceRange.SpecialCells(XlCellType.xlCellTypeVisible);
 
                 Range copyRange = glSheet.Range["A1:W" + glSheet.Rows.Count];
 
@@ -611,22 +613,12 @@ namespace SalesTax
                 
                 //glSheet.AutoFilterMode = false;
 
-                var glSheetFilterList5 = new object[]
-                {
-                    year
-                };
-
-                var glSheetFilterList6 = new object[]
-                {
-                    month
-                };
-
-                var glSheetFilterList7 = new object[]
+                var glSheetFilterList3 = new object[]
                 {
                     "Sales Tax Payable"
                 };
 
-                var glSheetFilterList8 = new object[]
+                var glSheetFilterList4 = new object[]
                 {
                     "Sales",
                     "Sales Refund-3rd Party-02.2024",
@@ -637,12 +629,10 @@ namespace SalesTax
 
                 //Range sourceRange = glSheet.Range[glSheet.Cells[1, 1], glSheet.Cells[1, glSheet.UsedRange.Column]];
                 glSheet.ShowAllData();
-                sourceRange.AutoFilter(3, glSheetFilterList5, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
-                sourceRange.AutoFilter(4, glSheetFilterList6, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
-                sourceRange.AutoFilter(10, glSheetFilterList7, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
-                sourceRange.AutoFilter(13, glSheetFilterList8, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
-
-                Range filteredRange1 = sourceRange.SpecialCells(XlCellType.xlCellTypeVisible);
+                sourceRange.AutoFilter(3, glSheetFilterListYear, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(4, glSheetFilterListMonth, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(10, glSheetFilterList3, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(13, glSheetFilterList4, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
 
                 Range copyRange2 = glSheet.Range["A1:W" + glSheet.Rows.Count];
 
@@ -705,7 +695,10 @@ namespace SalesTax
                                     {
                                         int keyRow = cell.Row;
 
-                                        salesTaxSummarySheet.Cells[keyRow, 4].Value2 = pair.Value;
+                                        if (int.TryParse(pair.Value, out int intValue)) // Assuming pair.Value is of type string
+                                        {
+                                            salesTaxSummarySheet.Cells[keyRow, 4].Value2 = intValue * -1;
+                                        }
 
                                         break;
                                     }
@@ -1000,6 +993,387 @@ namespace SalesTax
                         break;
                 }
 
+                Worksheet salesData = salesTaxWorkbook.Worksheets["Sales Data as per P&L Net Sales"];
+
+                switch (monthInt)
+                {
+                    case 2:
+                        if (previousMonth == 1)
+                        {
+                            Range copyRange1 = salesData.Range[$"E4:E74"];
+                            Range pasteRange1 = salesData.Range[$"F4:F74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break; 
+                    
+                    case 3:
+                        if (previousMonth == 2)
+                        {
+                            Range copyRange1 = salesData.Range[$"F4:F74"];
+                            Range pasteRange1 = salesData.Range[$"G4:G74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break;
+
+                    case 4:
+                        if (previousMonth == 3)
+                        {
+                            Range copyRange1 = salesData.Range[$"G4:G74"];
+                            Range pasteRange1 = salesData.Range[$"H4:H74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break;
+
+                    case 5:
+                        if (previousMonth == 4)
+                        {
+                            Range copyRange1 = salesData.Range[$"H4:H74"];
+                            Range pasteRange1 = salesData.Range[$"I4:I74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break;
+
+                    case 6:
+                        if (previousMonth == 5)
+                        {
+                            Range copyRange1 = salesData.Range[$"I4:I74"];
+                            Range pasteRange1 = salesData.Range[$"J4:J74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break;
+
+                    case 7:
+                        if (previousMonth == 6)
+                        {
+                            Range copyRange1 = salesData.Range[$"J4:J74"];
+                            Range pasteRange1 = salesData.Range[$"K4:K74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break;
+
+                    case 8:
+                        if (previousMonth == 7)
+                        {
+                            Range copyRange1 = salesData.Range[$"K4:K74"];
+                            Range pasteRange1 = salesData.Range[$"L4:L74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break;
+
+                    case 9:
+                        if (previousMonth == 8)
+                        {
+                            Range copyRange1 = salesData.Range[$"L4:L74"];
+                            Range pasteRange1 = salesData.Range[$"M4:M74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break;
+
+                    case 10:
+                        if (previousMonth == 9)
+                        {
+                            Range copyRange1 = salesData.Range[$"M4:M74"];
+                            Range pasteRange1 = salesData.Range[$"N4:N74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break;
+
+                    case 11:
+                        if (previousMonth == 10)
+                        {
+                            Range copyRange1 = salesData.Range[$"N4:N74"];
+                            Range pasteRange1 = salesData.Range[$"O4:O74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break;
+
+                    case 12:
+                        if (previousMonth == 11)
+                        {
+                            Range copyRange1 = salesData.Range[$"O4:O74"];
+                            Range pasteRange1 = salesData.Range[$"P4:P74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+
+                Worksheet salesGL = salesTaxWorkbook.Worksheets["Sales GL"];
+                salesGL.Cells.Clear();
+
+                var glSheetFilterList5 = new object[]
+                {
+                    "Net Sales"
+                };
+
+                var glSheetFilterList6 = new object[]
+                {
+                    "CJ"
+                };
+
+                //Range sourceRange = glSheet.Range[glSheet.Cells[1, 1], glSheet.Cells[1, glSheet.UsedRange.Column]];
+                glSheet.ShowAllData();
+                sourceRange.AutoFilter(3, glSheetFilterListYear, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(4, glSheetFilterListMonth, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(8, glSheetFilterList5, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(1, glSheetFilterList6, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+
+                Range copyRange3 = glSheet.Range["A1:W" + glSheet.Rows.Count];
+
+                Range pasteRange3 = salesGL.Range["A1:W" + salesGL.Rows.Count];
+
+                copyRange3.Copy(Type.Missing);
+                pasteRange3.PasteSpecial(XlPasteType.xlPasteAll);
+
+                Worksheet ebtData = salesTaxWorkbook.Worksheets["EBT from 10023"];
+
+                switch (monthInt)
+                {
+                    case 2:
+                        if (previousMonth == 1)
+                        {
+                            Range copyRange1 = ebtData.Range[$"E4:E74"];
+                            Range pasteRange1 = ebtData.Range[$"F4:F74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break;
+
+                    case 3:
+                        if (previousMonth == 2)
+                        {
+                            Range copyRange1 = ebtData.Range[$"F4:F74"];
+                            Range pasteRange1 = ebtData.Range[$"G4:G74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break;
+
+                    case 4:
+                        if (previousMonth == 3)
+                        {
+                            Range copyRange1 = ebtData.Range[$"G4:G74"];
+                            Range pasteRange1 = ebtData.Range[$"H4:H74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break;
+
+                    case 5:
+                        if (previousMonth == 4)
+                        {
+                            Range copyRange1 = ebtData.Range[$"H4:H74"];
+                            Range pasteRange1 = ebtData.Range[$"I4:I74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break;
+
+                    case 6:
+                        if (previousMonth == 5)
+                        {
+                            Range copyRange1 = ebtData.Range[$"I4:I74"];
+                            Range pasteRange1 = ebtData.Range[$"J4:J74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break;
+
+                    case 7:
+                        if (previousMonth == 6)
+                        {
+                            Range copyRange1 = ebtData.Range[$"J4:J74"];
+                            Range pasteRange1 = ebtData.Range[$"K4:K74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break;
+
+                    case 8:
+                        if (previousMonth == 7)
+                        {
+                            Range copyRange1 = ebtData.Range[$"K4:K74"];
+                            Range pasteRange1 = ebtData.Range[$"L4:L74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break;
+
+                    case 9:
+                        if (previousMonth == 8)
+                        {
+                            Range copyRange1 = ebtData.Range[$"L4:L74"];
+                            Range pasteRange1 = ebtData.Range[$"M4:M74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break;
+
+                    case 10:
+                        if (previousMonth == 9)
+                        {
+                            Range copyRange1 = ebtData.Range[$"M4:M74"];
+                            Range pasteRange1 = ebtData.Range[$"N4:N74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break;
+
+                    case 11:
+                        if (previousMonth == 10)
+                        {
+                            Range copyRange1 = ebtData.Range[$"N4:N74"];
+                            Range pasteRange1 = ebtData.Range[$"O4:O74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break;
+
+                    case 12:
+                        if (previousMonth == 11)
+                        {
+                            Range copyRange1 = ebtData.Range[$"O4:O74"];
+                            Range pasteRange1 = ebtData.Range[$"P4:P74"];
+
+                            copyRange1.Copy(Type.Missing);
+                            pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
+                            copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+
+                Worksheet ebtSource = salesTaxWorkbook.Worksheets["EBT SOURCE"];
+
+                Range ebtClearRange = ebtSource.Range["A1:G" + ebtSource.Rows.Count];
+                ebtClearRange.Clear();
+
+                List<glEbtData> glEbtDataList = new List<glEbtData>();
+
+                glSheet.ShowAllData();
+                int glLastRow = glSheet.Cells[glSheet.Rows.Count, 1].End[Excel.XlDirection.xlUp].Row;
+
+                for(int i = 1; i <= glLastRow; i++)
+                {
+                    string entity = Convert.ToString(glSheet.Cells[i, 2].Value);
+                    string per = Convert.ToString(glSheet.Cells[i, 4].Value);
+                    string ebtDate = Convert.ToString(glSheet.Cells[i, 5].Value);
+                    string je = Convert.ToString(glSheet.Cells[i, 11].Value);
+                    string comment = Convert.ToString(glSheet.Cells[i, 12].Value);
+                    string debit = Convert.ToString(glSheet.Cells[i, 16].Value);
+                    string credit = Convert.ToString(glSheet.Cells[i, 17].Value);
+
+                    if (comment.Contains("EBT food") || comment.Contains("EBT Cash"))
+                    {
+                        glEbtData rowData = new glEbtData
+                        {
+                            Entity = entity,
+                            Per = per,
+                            EBTDate = ebtDate,
+                            JE = je,
+                            Comment = comment,
+                            Debit = debit,
+                            Credit = credit,
+
+
+                        };
+
+                        glEbtDataList.Add(rowData);
+                       
+                    }
+                }
+
+                int ebtRowCounter = 2;
+                foreach (var data in glEbtDataList)
+                {
+                    ebtSource.Cells[ebtRowCounter, 1].Value = data.Entity;
+                    ebtSource.Cells[ebtRowCounter, 2].Value = data.Per;
+                    ebtSource.Cells[ebtRowCounter, 3].Value = data.EBTDate;
+                    ebtSource.Cells[ebtRowCounter, 4].Value = data.JE;
+                    ebtSource.Cells[ebtRowCounter, 5].Value = data.Comment;
+                    ebtSource.Cells[ebtRowCounter, 6].Value = data.Debit;
+                    ebtSource.Cells[ebtRowCounter, 7].Value = data.Credit;
+                    ebtRowCounter++;
+                }
 
 
 
@@ -1018,5 +1392,17 @@ namespace SalesTax
                 Marshal.ReleaseComObject(excelApp);
             }
         }
+    }
+
+    internal class glEbtData
+    {
+        public string Entity { get; set; }
+        public string Per { get; set; }
+        public string EBTDate { get; set; }
+        public string JE { get; set; }
+        public string Comment { get; set; }
+        public string Debit { get; set; }
+        public string Credit { get; set; }
+
     }
 }
