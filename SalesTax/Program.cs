@@ -8,9 +8,58 @@ using System.Security.Cryptography;
 using System.Windows.Ink;
 using Microsoft.Office.Interop.Excel;
 using Excel = Microsoft.Office.Interop.Excel;
+using OfficeOpenXml;
+using System.IO;
+using OfficeOpenXml.Drawing.Chart;
 
 namespace SalesTax
 {
+    internal class RowDataForUberReport
+    {
+        public dynamic StoreName { get; set; }
+        public dynamic StoreID { get; set; }
+        public dynamic OrderID { get; set; }
+        public dynamic WorkflowID { get; set; }
+        public dynamic DiningMode { get; set; }
+        public dynamic PaymentMode { get; set; }
+        public dynamic OrderChannel { get; set; }
+        public dynamic OrderStatus { get; set; }
+        public dynamic OrderDate { get; set; }
+        public dynamic OrderAcceptingTime { get; set; }
+        public dynamic CustomerStatus { get; set; }
+        public dynamic SalesExc { get; set; }
+        public dynamic TaxOnSales { get; set; }
+        public dynamic SalesInc { get; set; }
+        public dynamic RefundsExc { get; set; }
+        public dynamic TaxOnRefund { get; set; }
+        public dynamic RefundsInc { get; set; }
+        public dynamic PriceAdjusExc { get; set; }
+        public dynamic TaxOnPriceAdjus { get; set; }
+        public dynamic PromotionOnItems { get; set; }
+        public dynamic TaxOnPromotions { get; set; }
+        public dynamic PromotionsOnDelivery { get; set; }
+        public dynamic TaxOnPromotionsDelivery { get; set; }
+        public dynamic BagFee { get; set; }
+        public dynamic MarketingAdjus { get; set; }
+        public dynamic TotalSales { get; set; }
+        public dynamic MarketplaceFee { get; set; }
+        public dynamic MarketplaceFeePer { get; set; }
+        public dynamic DeliveryNetworkFee { get; set; }
+        public dynamic OrderProcessingFee { get; set; }
+        public dynamic MerchantFee { get; set; }
+        public dynamic TaxOnMerchantFee { get; set; }
+        public dynamic Tips { get; set; }
+        public dynamic OtherPaymentsDesc { get; set; }
+        public dynamic OtherPayments { get; set; }
+        public dynamic MarketPlaceFaciliatorTax { get; set; }
+        public dynamic BackupWithHoldingTax { get; set; }
+        public dynamic TotalPayout { get; set; }
+        public dynamic PayoutDate { get; set; }
+        public dynamic MarkupAmount { get; set; }
+        public dynamic MarkupTax { get; set; }
+        public dynamic RetailerLoyaltyID { get; set; }
+        public dynamic PayoutReferenceID { get; set; }
+    }
     internal class Program
     {
         static void Main(string[] args)
@@ -23,7 +72,7 @@ namespace SalesTax
         public void SalesTax()
         {
             Excel.Application excelApp = new Excel.Application();
-            excelApp.Visible = true;
+            excelApp.Visible = false;
             excelApp.Interactive = false;
             excelApp.DisplayAlerts = false;
             excelApp.DisplayClipboardWindow = false;
@@ -33,18 +82,22 @@ namespace SalesTax
 
             string glFilePath = @"C:\Users\Nimap\Documents\SalesTax\All Live GL 2023-2024 updated.xlsx";
 
-            string uberFilePath = @"C:\Users\Nimap\Documents\SalesTax\eb2d98fb-f0db-4e95-aebf-df389fe780cb-united_states.csv";
+            string uberFilePath = @"C:\Users\Nimap\Downloads\eb2d98fb-f0db-4e95-aebf-df389fe780cb-united_states.csv";
+            string targetUberFilePath= @"C:\Users\Nimap\Documents\SalesTax\eb2d98fb-f0db-4e95-aebf-df389fe780cb-united_states.xlsx";
+
+            string salesRefundFilePath = @"C:\Users\Nimap\Documents\SalesTax\Sales Refund 02.2024.xlsx";
 
             Excel.Workbook salesTaxWorkbook = excelApp.Workbooks.Open(salesTaxFilePath);
 
-            Excel.Workbook glWorkbook = excelApp.Workbooks.Open(glFilePath);
+            //Excel.Workbook glWorkbook = excelApp.Workbooks.Open(glFilePath);
 
-            Excel.Workbook uberWorkbook = excelApp.Workbooks.Open(uberFilePath);
+            //Excel.Workbook salesRefundWorkbook = excelApp.Workbooks.Open(salesRefundFilePath);
 
 
 
             try
             {
+                /*
                 string date = "02/29/2024";
                 DateTime parsedDate = DateTime.ParseExact(date, "MM/dd/yyyy", CultureInfo.InvariantCulture);
 
@@ -1585,9 +1638,401 @@ namespace SalesTax
                         break;
                 }
 
-                Worksheet uberSheet = uberWorkbook.Worksheets[1];
+                
+                Worksheet uberSummarySheet = salesRefundWorkbook.Worksheets["Uber Summary"];
+                Worksheet salesRefundSheet = salesTaxWorkbook.Worksheets["Sales Refunds"];
+
+                Range salesRefundClearRange = salesRefundSheet.Range["A2:C" + salesRefundSheet.Rows.Count];
+                salesRefundClearRange.Clear();
+
+                int breakRow = 66;
+                for (int i = 5; i <= uberSummarySheet.UsedRange.Rows.Count; i++)
+                {
+                    var uberValue = uberSummarySheet.Cells[i, 8].Value;
+                    if ((uberValue == null) || !(uberValue is string))
+                    {
+                        continue;
+                    }
+                    string grandtotal = Convert.ToString(uberSummarySheet.Cells[i, 8].Value);
+                    if (grandtotal.ToLower().Trim().Contains("grand total"))
+                    {
+                        breakRow = i-1;
+                        break;
+                    }
+                }
+
+                Range copyUberSummary1 = uberSummarySheet.Range["H5:I" + breakRow];
+                Range copyUberSummary2 = uberSummarySheet.Range["M5:M" + breakRow];
+                Range pasteUberSummary1 = salesRefundSheet.Range["A2:B" + breakRow];
+                Range pasteUberSummary2 = salesRefundSheet.Range["C2:C" + breakRow];
+
+                copyUberSummary1.Copy(Type.Missing);
+                pasteUberSummary1.PasteSpecial(XlPasteType.xlPasteValues);
+                copyUberSummary2.Copy(Type.Missing);
+                pasteUberSummary2.PasteSpecial(XlPasteType.xlPasteValues);
+
+                */
+
+                Excel.Workbook uberWorkbook = excelApp.Workbooks.Open(uberFilePath);
+                uberWorkbook.SaveAs(targetUberFilePath, FileFormat: XlFileFormat.xlOpenXMLWorkbook);
+                uberWorkbook.Close();
+
+                List<RowDataForUberReport> uberData = new List<RowDataForUberReport>();
+
+                using (var excelPackage = new ExcelPackage(new FileInfo(targetUberFilePath)))
+                {
+                    var worksheet = excelPackage.Workbook.Worksheets[0];
+
+                    int numRows = worksheet.Dimension.End.Row;
+                    int numCols = worksheet.Dimension.End.Column;
+                    int orderDateCol = 0;
+                    Dictionary<string, int> columnsMap = new Dictionary<string, int>
+                    {
+                        { "storeName",1},
+                        { "storeId",1},
+                        { "orderId",1},
+                        { "workflowId",1},
+                        { "diningMode",1},
+                        { "paymentMode",1},
+                        { "orderChannel",1},
+                        { "orderStatus",1},
+                        { "orderDate",1},
+                        { "orderAccept",1},
+                        { "customerUber",1},
+                        { "salesExcl",1},
+                        { "taxOnSales",1},
+                        { "salesInc",1},
+                        { "refundsExcl",1},
+                        { "taxOnRefund",1},
+                        { "refundInc",1},
+                        { "priceAdjExcl",1},
+                        { "taxOnPrice",1},
+                        { "promotionOnItem",1},
+                        { "taxOnPromotion",1},
+                        { "promotionOnDelivery",1},
+                        { "taxOnPromotionDelivery",1},
+                        { "backFee",1},
+                        { "marketingAdj",1},
+                        { "totalSales",1},
+                        { "marketplaceFee",1},
+                        { "marketplacePer",1},
+                        { "deliveryNetwork",1},
+                        { "orderProcessing",1},
+                        { "merchantFee",1},
+                        { "taxOnMerchantFee",1},
+                        { "tips",1},
+                        { "otherPaymentDesc",1},
+                        { "otherPayments",1},
+                        { "marketplaceFacilitate",1},
+                        { "backupWithHolding",1},
+                        { "totalPayout",1},
+                        { "payoutDate",1},
+                        { "markupAmount",1},
+                        { "markupText",1},
+                        { "retailerLoyalty",1},
+                        { "payoutReference",1},
+                    };
+                    for(int col = 1; col <= numCols; col++)
+                    {
+                        string textCol = worksheet.Cells[2, col].Text.ToLower().Trim();
+                        if(textCol.Contains("store name"))
+                        {
+                            columnsMap["storeName"] = col;
+                        }else if(textCol.Contains("store id"))
+                        {
+                            columnsMap["storeId"] = col;
+                        }
+                        else if (textCol.Contains("order id"))
+                        {
+                            columnsMap["orderId"] = col;
+                        }
+                        else if (textCol.Contains("workflow"))
+                        {
+                            columnsMap["workflowId"] = col;
+                        }
+                        else if (textCol.Contains("dining"))
+                        {
+                            columnsMap["diningMode"] = col;
+                        }
+                        else if (textCol.StartsWith("payment"))
+                        {
+                            columnsMap["paymentMode"] = col;
+                        }
+                        else if (textCol.Contains("order channel"))
+                        {
+                            columnsMap["orderChannel"] = col;
+                        }
+                        else if (textCol.Contains("order status"))
+                        {
+                            columnsMap["orderStatus"] = col;
+                        }
+                        else if (textCol.Contains("order date"))
+                        {
+                            columnsMap["orderDate"] = col;
+                        }
+                        else if (textCol.Contains("order accept"))
+                        {
+                            columnsMap["orderAccept"] = col;
+                        }
+                        else if (textCol.Contains("customer uber"))
+                        {
+                            columnsMap["customerUber"] = col;
+                        }
+                        else if (textCol.Contains("sales (excl"))
+                        {
+                            columnsMap["salesExcl"] = col;
+                        }
+                        else if (textCol.Contains("tax on sales"))
+                        {
+                            columnsMap["taxOnSales"] = col;
+                        }
+                        else if (textCol.Contains("sales (inc"))
+                        {
+                            columnsMap["salesInc"] = col;
+                        }
+                        else if (textCol.Contains("refunds (exc"))
+                        {
+                            columnsMap["refundsExcl"] = col;
+                        }
+                        else if (textCol.Contains("tax on refund"))
+                        {
+                            columnsMap["taxOnRefund"] = col;
+                        }
+                        else if (textCol.Contains("refunds (inc"))
+                        {
+                            columnsMap["refundInc"] = col;
+                        }
+                        else if (textCol.StartsWith("price adj"))
+                        {
+                            columnsMap["priceAdjExcl"] = col;
+                        }
+                        else if (textCol.Contains("tax on price adj"))
+                        {
+                            columnsMap["taxOnPrice"] = col;
+                        }
+                        else if (textCol.Contains("promotions on items"))
+                        {
+                            columnsMap["promotionOnItem"] = col;
+                        }
+                        else if (textCol.Contains("tax on promotion on items"))
+                        {
+                            columnsMap["taxOnPromotion"] = col;
+                        }
+                        else if (textCol.StartsWith("promotions on delivery"))
+                        {
+                            columnsMap["promotionOnDelivery"] = col;
+                        }
+                        else if (textCol.StartsWith("tax on promotions on delivery"))
+                        {
+                            columnsMap["taxOnPromotionDelivery"] = col;
+                        }
+                        else if (textCol.StartsWith("bag"))
+                        {
+                            columnsMap["backFee"] = col;
+                        }
+                        else if (textCol.Contains("marketing adj"))
+                        {
+                            columnsMap["marketingAdj"] = col;
+                        }
+                        else if (textCol.Contains("total sales"))
+                        {
+                            columnsMap["totalSales"] = col;
+                        }
+                        else if (textCol.Equals("marketplace fee"))
+                        {
+                            columnsMap["marketplaceFee"] = col;
+                        }
+                        else if (textCol.Equals("marketplace fee %"))
+                        {
+                            columnsMap["marketplacePer"] = col;
+                        }
+                        else if (textCol.Contains("delivery network"))
+                        {
+                            columnsMap["deliveryNetwork"] = col;
+                        }
+                        else if (textCol.Contains("order processing fee"))
+                        {
+                            columnsMap["orderProcessing"] = col;
+                        }
+                        else if (textCol.StartsWith("merchant fee"))
+                        {
+                            columnsMap["merchantFee"] = col;
+                        }
+                        else if (textCol.Contains("tax on merchant fee"))
+                        {
+                            columnsMap["taxOnMerchantFee"] = col;
+                        }
+                        else if (textCol.Contains("tips"))
+                        {
+                            columnsMap["tips"] = col;
+                        }
+                        else if (textCol.Contains("other payments desc"))
+                        {
+                            columnsMap["otherPaymentDesc"] = col;
+                        }
+                        else if (textCol.Contains("other payments"))
+                        {
+                            columnsMap["otherPayments"] = col;
+                        }
+                        else if (textCol.Contains("marketplace faci"))
+                        {
+                            columnsMap["marketplaceFacilitate"] = col;
+                        }
+                        else if (textCol.Contains("backup withholding"))
+                        {
+                            columnsMap["backupWithHolding"] = col;
+                        }
+                        else if (textCol.Contains("total payout"))
+                        {
+                            columnsMap["totalPayout"] = col;
+                        }
+                        else if (textCol.Contains("payout date"))
+                        {
+                            columnsMap["payoutDate"] = col;
+                        }
+                        else if (textCol.Contains("markup amount"))
+                        {
+                            columnsMap["markupAmount"] = col;
+                        }
+                        else if (textCol.Contains("markup tax"))
+                        {
+                            columnsMap["markupText"] = col;
+                        }
+                        else if (textCol.Contains("retailer loyalty"))
+                        {
+                            columnsMap["retailerLoyalty"] = col;
+                        }
+                        else if (textCol.Contains("payout reference"))
+                        {
+                            columnsMap["payoutReference"] = col;
+                        }
 
 
+                    };
+                    int intMonth = 2;
+                    //List<RowDataForUberReport> uberDate = new List<RowDataForUberReport>();
+
+                    for (int row = 3; row <= numRows; row++)
+                    {
+                        var value = worksheet.Cells[row, columnsMap["orderDate"]].Value;
+                        DateTime orderDate = default;
+                        if (value is DateTime valueDate)
+                        {
+                            orderDate = valueDate.Date;
+                        } else if (value is double valueDouble)
+                        {
+                            orderDate = DateTime.FromOADate(valueDouble).Date;
+                        }
+                        if (orderDate.Equals(default) || orderDate.Month != intMonth)
+                        {
+                            continue;
+                        }
+                        RowDataForUberReport rowData = new RowDataForUberReport
+                        {
+                            StoreName = worksheet.Cells[row, columnsMap["storeName"]].Value,
+                            StoreID = worksheet.Cells[row, columnsMap["storeId"]].Value,
+                            OrderID = worksheet.Cells[row, columnsMap["orderId"]].Value,
+                            WorkflowID = worksheet.Cells[row, columnsMap["workflowId"]].Value,
+                            DiningMode = worksheet.Cells[row, columnsMap["diningMode"]].Value,
+                            PaymentMode = worksheet.Cells[row, columnsMap["paymentMode"]].Value,
+                            OrderChannel = worksheet.Cells[row, columnsMap["orderChannel"]].Value,
+                            OrderStatus = worksheet.Cells[row, columnsMap["orderStatus"]].Value,
+                            OrderDate = worksheet.Cells[row, columnsMap["orderDate"]].Value,
+                            OrderAcceptingTime = worksheet.Cells[row, columnsMap["orderAccept"]].Value,
+                            CustomerStatus = worksheet.Cells[row, columnsMap["customerUber"]].Value,
+                            SalesExc = worksheet.Cells[row, columnsMap["salesExcl"]].Value,
+                            TaxOnSales = worksheet.Cells[row, columnsMap["taxOnSales"]].Value,
+                            SalesInc = worksheet.Cells[row, columnsMap["salesInc"]].Value,
+                            RefundsExc = worksheet.Cells[row, columnsMap["refundsExcl"]].Value,
+                            TaxOnRefund = worksheet.Cells[row, columnsMap["taxOnRefund"]].Value,
+                            RefundsInc = worksheet.Cells[row, columnsMap["refundInc"]].Value,
+                            PriceAdjusExc = worksheet.Cells[row, columnsMap["priceAdjExcl"]].Value,
+                            TaxOnPriceAdjus = worksheet.Cells[row, columnsMap["taxOnPrice"]].Value,
+                            PromotionOnItems = worksheet.Cells[row, columnsMap["promotionOnItem"]].Value,
+                            TaxOnPromotions = worksheet.Cells[row, columnsMap["taxOnPromotion"]].Value,
+                            PromotionsOnDelivery = worksheet.Cells[row, columnsMap["promotionOnDelivery"]].Value,
+                            TaxOnPromotionsDelivery = worksheet.Cells[row, columnsMap["taxOnPromotionDelivery"]].Value,
+                            BagFee = worksheet.Cells[row, columnsMap["backFee"]].Value,
+                            MarketingAdjus = worksheet.Cells[row, columnsMap["marketingAdj"]].Value,
+                            TotalSales = worksheet.Cells[row, columnsMap["totalSales"]].Value,
+                            MarketplaceFee = worksheet.Cells[row, columnsMap["marketplaceFee"]].Value,
+                            MarketplaceFeePer = worksheet.Cells[row, columnsMap["marketplacePer"]].Value,
+                            DeliveryNetworkFee = worksheet.Cells[row, columnsMap["deliveryNetwork"]].Value,
+                            OrderProcessingFee = worksheet.Cells[row, columnsMap["orderProcessing"]].Value,
+                            MerchantFee = worksheet.Cells[row, columnsMap["merchantFee"]].Value,
+                            TaxOnMerchantFee = worksheet.Cells[row, columnsMap["taxOnMerchantFee"]].Value,
+                            Tips = worksheet.Cells[row, columnsMap["tips"]].Value,
+                            OtherPaymentsDesc = worksheet.Cells[row, columnsMap["otherPaymentDesc"]].Value,
+                            OtherPayments = worksheet.Cells[row, columnsMap["otherPayments"]].Value,
+                            MarketPlaceFaciliatorTax = worksheet.Cells[row, columnsMap["marketplaceFacilitate"]].Value,
+                            BackupWithHoldingTax = worksheet.Cells[row, columnsMap["backupWithHolding"]].Value,
+                            TotalPayout = worksheet.Cells[row, columnsMap["totalPayout"]].Value,
+                            PayoutDate = worksheet.Cells[row, columnsMap["payoutDate"]].Value,
+                            MarkupAmount = worksheet.Cells[row, columnsMap["markupAmount"]].Value,
+                            MarkupTax = worksheet.Cells[row, columnsMap["markupText"]].Value,
+                            RetailerLoyaltyID = worksheet.Cells[row, columnsMap["retailerLoyalty"]].Value,
+                            PayoutReferenceID = worksheet.Cells[row, columnsMap["payoutReference"]].Value,
+                        };
+                    uberData.Add(rowData);
+                    }
+
+                }
+
+                Worksheet uberSourceSheet = salesTaxWorkbook.Worksheets["Uber source "];
+
+                Range uberSourceClearRange = uberSourceSheet.Range["A2:AQ" + uberSourceSheet.Rows.Count];
+                uberSourceClearRange.Clear();
+
+                int uberRowCounter = 2;
+                foreach (var data in uberData)
+                {
+                    uberSourceSheet.Cells[uberRowCounter, 1].Value = data.StoreName;
+                    uberSourceSheet.Cells[uberRowCounter, 2].Value = data.StoreID;
+                    uberSourceSheet.Cells[uberRowCounter, 3].Value = data.OrderID;
+                    uberSourceSheet.Cells[uberRowCounter, 4].Value = data.WorkflowID;
+                    uberSourceSheet.Cells[uberRowCounter, 5].Value = data.DiningMode;
+                    uberSourceSheet.Cells[uberRowCounter, 6].Value = data.PaymentMode;
+                    uberSourceSheet.Cells[uberRowCounter, 7].Value = data.OrderChannel;
+                    uberSourceSheet.Cells[uberRowCounter, 8].Value = data.OrderStatus;
+                    uberSourceSheet.Cells[uberRowCounter, 9].Value = data.OrderDate;
+                    uberSourceSheet.Cells[uberRowCounter, 10].Value = data.OrderAcceptingTime;
+                    uberSourceSheet.Cells[uberRowCounter, 11].Value = data.CustomerStatus;
+                    uberSourceSheet.Cells[uberRowCounter, 12].Value = data.SalesExc;
+                    uberSourceSheet.Cells[uberRowCounter, 13].Value = data.TaxOnSales;
+                    uberSourceSheet.Cells[uberRowCounter, 14].Value = data.SalesInc;
+                    uberSourceSheet.Cells[uberRowCounter, 15].Value = data.RefundsExc;
+                    uberSourceSheet.Cells[uberRowCounter, 16].Value = data.TaxOnRefund;
+                    uberSourceSheet.Cells[uberRowCounter, 17].Value = data.RefundsInc;
+                    uberSourceSheet.Cells[uberRowCounter, 18].Value = data.PriceAdjusExc;
+                    uberSourceSheet.Cells[uberRowCounter, 19].Value = data.TaxOnPriceAdjus;
+                    uberSourceSheet.Cells[uberRowCounter, 20].Value = data.PromotionOnItems;
+                    uberSourceSheet.Cells[uberRowCounter, 21].Value = data.TaxOnPromotions;
+                    uberSourceSheet.Cells[uberRowCounter, 22].Value = data.PromotionsOnDelivery;
+                    uberSourceSheet.Cells[uberRowCounter, 23].Value = data.TaxOnPromotionsDelivery;
+                    uberSourceSheet.Cells[uberRowCounter, 24].Value = data.BagFee;
+                    uberSourceSheet.Cells[uberRowCounter, 25].Value = data.MarketingAdjus;
+                    uberSourceSheet.Cells[uberRowCounter, 26].Value = data.TotalSales;
+                    uberSourceSheet.Cells[uberRowCounter, 27].Value = data.MarketplaceFee;
+                    uberSourceSheet.Cells[uberRowCounter, 28].Value = data.MarketplaceFeePer;
+                    uberSourceSheet.Cells[uberRowCounter, 29].Value = data.DeliveryNetworkFee;
+                    uberSourceSheet.Cells[uberRowCounter, 30].Value = data.OrderProcessingFee;
+                    uberSourceSheet.Cells[uberRowCounter, 31].Value = data.MerchantFee;
+                    uberSourceSheet.Cells[uberRowCounter, 32].Value = data.TaxOnMerchantFee;
+                    uberSourceSheet.Cells[uberRowCounter, 33].Value = data.Tips;
+                    uberSourceSheet.Cells[uberRowCounter, 34].Value = data.OtherPaymentsDesc;
+                    uberSourceSheet.Cells[uberRowCounter, 35].Value = data.OtherPayments;
+                    uberSourceSheet.Cells[uberRowCounter, 36].Value = data.MarketPlaceFaciliatorTax;
+                    uberSourceSheet.Cells[uberRowCounter, 37].Value = data.BackupWithHoldingTax;
+                    uberSourceSheet.Cells[uberRowCounter, 38].Value = data.TotalPayout;
+                    uberSourceSheet.Cells[uberRowCounter, 39].Value = data.PayoutDate;
+                    uberSourceSheet.Cells[uberRowCounter, 40].Value = data.MarkupAmount;
+                    uberSourceSheet.Cells[uberRowCounter, 41].Value = data.MarkupTax;
+                    uberSourceSheet.Cells[uberRowCounter, 42].Value = data.RetailerLoyaltyID;
+                    uberSourceSheet.Cells[uberRowCounter, 43].Value = data.PayoutReferenceID;
+
+                    // Increment the row counter for the next iteration
+                    uberRowCounter++;
+                }
 
 
 
