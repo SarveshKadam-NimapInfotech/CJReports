@@ -72,7 +72,7 @@ namespace SalesTax
         public void SalesTax()
         {
             Excel.Application excelApp = new Excel.Application();
-            excelApp.Visible = false;
+            excelApp.Visible = true;
             excelApp.Interactive = false;
             excelApp.DisplayAlerts = false;
             excelApp.DisplayClipboardWindow = false;
@@ -82,22 +82,22 @@ namespace SalesTax
 
             string glFilePath = @"C:\Users\Nimap\Documents\SalesTax\All Live GL 2023-2024 updated.xlsx";
 
-            string uberFilePath = @"C:\Users\Nimap\Downloads\eb2d98fb-f0db-4e95-aebf-df389fe780cb-united_states.csv";
+            string uberFilePath = $"{Path.GetFileNameWithoutExtension(glFilePath)}.xlsx";
             string targetUberFilePath= @"C:\Users\Nimap\Documents\SalesTax\eb2d98fb-f0db-4e95-aebf-df389fe780cb-united_states.xlsx";
 
             string salesRefundFilePath = @"C:\Users\Nimap\Documents\SalesTax\Sales Refund 02.2024.xlsx";
 
             Excel.Workbook salesTaxWorkbook = excelApp.Workbooks.Open(salesTaxFilePath);
 
-            //Excel.Workbook glWorkbook = excelApp.Workbooks.Open(glFilePath);
+            Excel.Workbook glWorkbook = excelApp.Workbooks.Open(glFilePath);
 
-            //Excel.Workbook salesRefundWorkbook = excelApp.Workbooks.Open(salesRefundFilePath);
+            Excel.Workbook salesRefundWorkbook = excelApp.Workbooks.Open(salesRefundFilePath);
 
 
 
             try
             {
-                /*
+                
                 string date = "02/29/2024";
                 DateTime parsedDate = DateTime.ParseExact(date, "MM/dd/yyyy", CultureInfo.InvariantCulture);
 
@@ -1671,16 +1671,26 @@ namespace SalesTax
                 copyUberSummary2.Copy(Type.Missing);
                 pasteUberSummary2.PasteSpecial(XlPasteType.xlPasteValues);
 
-                */
+                salesTaxWorkbook.Save();
+                salesTaxWorkbook.Close();
+                glWorkbook.Close();
+                salesRefundWorkbook.Close();
+                Marshal.ReleaseComObject(salesTaxWorkbook);
+                Marshal.ReleaseComObject(glWorkbook);
+                Marshal.ReleaseComObject(salesRefundWorkbook);
+
 
                 Excel.Workbook uberWorkbook = excelApp.Workbooks.Open(uberFilePath);
                 uberWorkbook.SaveAs(targetUberFilePath, FileFormat: XlFileFormat.xlOpenXMLWorkbook);
                 uberWorkbook.Close();
+                Marshal.ReleaseComObject(uberWorkbook);
 
-                List<RowDataForUberReport> uberData = new List<RowDataForUberReport>();
+                List<RowDataForUberReport> uberEPData = new List<RowDataForUberReport>();
 
+                using (var SalesTaxPackage = new ExcelPackage(new FileInfo(salesTaxFilePath)))
                 using (var excelPackage = new ExcelPackage(new FileInfo(targetUberFilePath)))
                 {
+                    
                     var worksheet = excelPackage.Workbook.Worksheets[0];
 
                     int numRows = worksheet.Dimension.End.Row;
@@ -1973,66 +1983,68 @@ namespace SalesTax
                             RetailerLoyaltyID = worksheet.Cells[row, columnsMap["retailerLoyalty"]].Value,
                             PayoutReferenceID = worksheet.Cells[row, columnsMap["payoutReference"]].Value,
                         };
-                    uberData.Add(rowData);
+                    uberEPData.Add(rowData);
                     }
 
+                    var uberSourceSheet = SalesTaxPackage.Workbook.Worksheets["Uber source "];
+
+                    uberSourceSheet.Cells["A2:AQ" + uberSourceSheet.Dimension.End.Row].Clear();
+
+                    int uberRowCounter = 2;
+                    foreach (var data in uberEPData)
+                    {
+                        uberSourceSheet.Cells[uberRowCounter, 1].Value = data.StoreName;
+                        uberSourceSheet.Cells[uberRowCounter, 2].Value = data.StoreID;
+                        uberSourceSheet.Cells[uberRowCounter, 3].Value = data.OrderID;
+                        uberSourceSheet.Cells[uberRowCounter, 4].Value = data.WorkflowID;
+                        uberSourceSheet.Cells[uberRowCounter, 5].Value = data.DiningMode;
+                        uberSourceSheet.Cells[uberRowCounter, 6].Value = data.PaymentMode;
+                        uberSourceSheet.Cells[uberRowCounter, 7].Value = data.OrderChannel;
+                        uberSourceSheet.Cells[uberRowCounter, 8].Value = data.OrderStatus;
+                        uberSourceSheet.Cells[uberRowCounter, 9].Value = data.OrderDate;
+                        uberSourceSheet.Cells[uberRowCounter, 10].Value = data.OrderAcceptingTime;
+                        uberSourceSheet.Cells[uberRowCounter, 11].Value = data.CustomerStatus;
+                        uberSourceSheet.Cells[uberRowCounter, 12].Value = data.SalesExc;
+                        uberSourceSheet.Cells[uberRowCounter, 13].Value = data.TaxOnSales;
+                        uberSourceSheet.Cells[uberRowCounter, 14].Value = data.SalesInc;
+                        uberSourceSheet.Cells[uberRowCounter, 15].Value = data.RefundsExc;
+                        uberSourceSheet.Cells[uberRowCounter, 16].Value = data.TaxOnRefund;
+                        uberSourceSheet.Cells[uberRowCounter, 17].Value = data.RefundsInc;
+                        uberSourceSheet.Cells[uberRowCounter, 18].Value = data.PriceAdjusExc;
+                        uberSourceSheet.Cells[uberRowCounter, 19].Value = data.TaxOnPriceAdjus;
+                        uberSourceSheet.Cells[uberRowCounter, 20].Value = data.PromotionOnItems;
+                        uberSourceSheet.Cells[uberRowCounter, 21].Value = data.TaxOnPromotions;
+                        uberSourceSheet.Cells[uberRowCounter, 22].Value = data.PromotionsOnDelivery;
+                        uberSourceSheet.Cells[uberRowCounter, 23].Value = data.TaxOnPromotionsDelivery;
+                        uberSourceSheet.Cells[uberRowCounter, 24].Value = data.BagFee;
+                        uberSourceSheet.Cells[uberRowCounter, 25].Value = data.MarketingAdjus;
+                        uberSourceSheet.Cells[uberRowCounter, 26].Value = data.TotalSales;
+                        uberSourceSheet.Cells[uberRowCounter, 27].Value = data.MarketplaceFee;
+                        uberSourceSheet.Cells[uberRowCounter, 28].Value = data.MarketplaceFeePer;
+                        uberSourceSheet.Cells[uberRowCounter, 29].Value = data.DeliveryNetworkFee;
+                        uberSourceSheet.Cells[uberRowCounter, 30].Value = data.OrderProcessingFee;
+                        uberSourceSheet.Cells[uberRowCounter, 31].Value = data.MerchantFee;
+                        uberSourceSheet.Cells[uberRowCounter, 32].Value = data.TaxOnMerchantFee;
+                        uberSourceSheet.Cells[uberRowCounter, 33].Value = data.Tips;
+                        uberSourceSheet.Cells[uberRowCounter, 34].Value = data.OtherPaymentsDesc;
+                        uberSourceSheet.Cells[uberRowCounter, 35].Value = data.OtherPayments;
+                        uberSourceSheet.Cells[uberRowCounter, 36].Value = data.MarketPlaceFaciliatorTax;
+                        uberSourceSheet.Cells[uberRowCounter, 37].Value = data.BackupWithHoldingTax;
+                        uberSourceSheet.Cells[uberRowCounter, 38].Value = data.TotalPayout;
+                        uberSourceSheet.Cells[uberRowCounter, 39].Value = data.PayoutDate;
+                        uberSourceSheet.Cells[uberRowCounter, 40].Value = data.MarkupAmount;
+                        uberSourceSheet.Cells[uberRowCounter, 41].Value = data.MarkupTax;
+                        uberSourceSheet.Cells[uberRowCounter, 42].Value = data.RetailerLoyaltyID;
+                        uberSourceSheet.Cells[uberRowCounter, 43].Value = data.PayoutReferenceID;
+
+                        // Increment the row counter for the next iteration
+                        uberRowCounter++;
+                    }
+
+                    SalesTaxPackage.Save();
                 }
 
-                Worksheet uberSourceSheet = salesTaxWorkbook.Worksheets["Uber source "];
-
-                Range uberSourceClearRange = uberSourceSheet.Range["A2:AQ" + uberSourceSheet.Rows.Count];
-                uberSourceClearRange.Clear();
-
-                int uberRowCounter = 2;
-                foreach (var data in uberData)
-                {
-                    uberSourceSheet.Cells[uberRowCounter, 1].Value = data.StoreName;
-                    uberSourceSheet.Cells[uberRowCounter, 2].Value = data.StoreID;
-                    uberSourceSheet.Cells[uberRowCounter, 3].Value = data.OrderID;
-                    uberSourceSheet.Cells[uberRowCounter, 4].Value = data.WorkflowID;
-                    uberSourceSheet.Cells[uberRowCounter, 5].Value = data.DiningMode;
-                    uberSourceSheet.Cells[uberRowCounter, 6].Value = data.PaymentMode;
-                    uberSourceSheet.Cells[uberRowCounter, 7].Value = data.OrderChannel;
-                    uberSourceSheet.Cells[uberRowCounter, 8].Value = data.OrderStatus;
-                    uberSourceSheet.Cells[uberRowCounter, 9].Value = data.OrderDate;
-                    uberSourceSheet.Cells[uberRowCounter, 10].Value = data.OrderAcceptingTime;
-                    uberSourceSheet.Cells[uberRowCounter, 11].Value = data.CustomerStatus;
-                    uberSourceSheet.Cells[uberRowCounter, 12].Value = data.SalesExc;
-                    uberSourceSheet.Cells[uberRowCounter, 13].Value = data.TaxOnSales;
-                    uberSourceSheet.Cells[uberRowCounter, 14].Value = data.SalesInc;
-                    uberSourceSheet.Cells[uberRowCounter, 15].Value = data.RefundsExc;
-                    uberSourceSheet.Cells[uberRowCounter, 16].Value = data.TaxOnRefund;
-                    uberSourceSheet.Cells[uberRowCounter, 17].Value = data.RefundsInc;
-                    uberSourceSheet.Cells[uberRowCounter, 18].Value = data.PriceAdjusExc;
-                    uberSourceSheet.Cells[uberRowCounter, 19].Value = data.TaxOnPriceAdjus;
-                    uberSourceSheet.Cells[uberRowCounter, 20].Value = data.PromotionOnItems;
-                    uberSourceSheet.Cells[uberRowCounter, 21].Value = data.TaxOnPromotions;
-                    uberSourceSheet.Cells[uberRowCounter, 22].Value = data.PromotionsOnDelivery;
-                    uberSourceSheet.Cells[uberRowCounter, 23].Value = data.TaxOnPromotionsDelivery;
-                    uberSourceSheet.Cells[uberRowCounter, 24].Value = data.BagFee;
-                    uberSourceSheet.Cells[uberRowCounter, 25].Value = data.MarketingAdjus;
-                    uberSourceSheet.Cells[uberRowCounter, 26].Value = data.TotalSales;
-                    uberSourceSheet.Cells[uberRowCounter, 27].Value = data.MarketplaceFee;
-                    uberSourceSheet.Cells[uberRowCounter, 28].Value = data.MarketplaceFeePer;
-                    uberSourceSheet.Cells[uberRowCounter, 29].Value = data.DeliveryNetworkFee;
-                    uberSourceSheet.Cells[uberRowCounter, 30].Value = data.OrderProcessingFee;
-                    uberSourceSheet.Cells[uberRowCounter, 31].Value = data.MerchantFee;
-                    uberSourceSheet.Cells[uberRowCounter, 32].Value = data.TaxOnMerchantFee;
-                    uberSourceSheet.Cells[uberRowCounter, 33].Value = data.Tips;
-                    uberSourceSheet.Cells[uberRowCounter, 34].Value = data.OtherPaymentsDesc;
-                    uberSourceSheet.Cells[uberRowCounter, 35].Value = data.OtherPayments;
-                    uberSourceSheet.Cells[uberRowCounter, 36].Value = data.MarketPlaceFaciliatorTax;
-                    uberSourceSheet.Cells[uberRowCounter, 37].Value = data.BackupWithHoldingTax;
-                    uberSourceSheet.Cells[uberRowCounter, 38].Value = data.TotalPayout;
-                    uberSourceSheet.Cells[uberRowCounter, 39].Value = data.PayoutDate;
-                    uberSourceSheet.Cells[uberRowCounter, 40].Value = data.MarkupAmount;
-                    uberSourceSheet.Cells[uberRowCounter, 41].Value = data.MarkupTax;
-                    uberSourceSheet.Cells[uberRowCounter, 42].Value = data.RetailerLoyaltyID;
-                    uberSourceSheet.Cells[uberRowCounter, 43].Value = data.PayoutReferenceID;
-
-                    // Increment the row counter for the next iteration
-                    uberRowCounter++;
-                }
+                
 
 
 
@@ -2050,15 +2062,15 @@ namespace SalesTax
         }
     }
 
-    internal class glEbtData
-    {
-        public string Entity { get; set; }
-        public string Per { get; set; }
-        public string EBTDate { get; set; }
-        public string JE { get; set; }
-        public string Comment { get; set; }
-        public string Debit { get; set; }
-        public string Credit { get; set; }
+    //internal class glEbtData
+    //{
+    //    public string Entity { get; set; }
+    //    public string Per { get; set; }
+    //    public string EBTDate { get; set; }
+    //    public string JE { get; set; }
+    //    public string Comment { get; set; }
+    //    public string Debit { get; set; }
+    //    public string Credit { get; set; }
 
-    }
+    //}
 }
