@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SalesByDayParts", "SalesByD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SalesTax", "SalesTax\SalesTax.csproj", "{A4AB0C09-4067-48CA-82E8-FCFBE309BC88}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynamicCodeForStoreList", "DynamicCodeForStoreList\DynamicCodeForStoreList.csproj", "{46FB0558-E30E-46DC-BEE3-647CBE5040AE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{A4AB0C09-4067-48CA-82E8-FCFBE309BC88}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A4AB0C09-4067-48CA-82E8-FCFBE309BC88}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A4AB0C09-4067-48CA-82E8-FCFBE309BC88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46FB0558-E30E-46DC-BEE3-647CBE5040AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46FB0558-E30E-46DC-BEE3-647CBE5040AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46FB0558-E30E-46DC-BEE3-647CBE5040AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46FB0558-E30E-46DC-BEE3-647CBE5040AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

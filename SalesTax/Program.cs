@@ -98,7 +98,7 @@ namespace SalesTax
             try
             {
                 
-                string date = "02/29/2024";
+                string date = "03/29/2024";
                 DateTime parsedDate = DateTime.ParseExact(date, "MM/dd/yyyy", CultureInfo.InvariantCulture);
 
                 int monthInt = parsedDate.Month;
@@ -135,9 +135,14 @@ namespace SalesTax
                             Range copyRange1 = salesTaxSummarySheet.Range[$"C8:C14"];
                             Range pasteRange1 = salesTaxSummarySheet.Range[$"D8:D14"];
 
+                            pasteRange1.Copy(Type.Missing);
+
                             copyRange1.Copy(Type.Missing);
                             pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
                             copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                            Range colourPasteRange = salesTaxSummarySheet.Range[$"C8:C14"];
+                            colourPasteRange.PasteSpecial(XlPasteType.xlPasteFormats);
 
                         }
                         break;
@@ -145,12 +150,17 @@ namespace SalesTax
                     case 3:
                         if (previousMonth == 2)
                         {
-                            Range copyRange1 = salesTaxSummarySheet.Range[$"D8:C14"];
+                            Range copyRange1 = salesTaxSummarySheet.Range[$"D8:D14"];
                             Range pasteRange1 = salesTaxSummarySheet.Range[$"E8:E14"];
+
+                            pasteRange1.Copy(Type.Missing);
 
                             copyRange1.Copy(Type.Missing);
                             pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
                             copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                            Range colourPasteRange = salesTaxSummarySheet.Range[$"C8:D14"];
+                            colourPasteRange.PasteSpecial(XlPasteType.xlPasteFormats);
 
                         }
                         break;
@@ -161,9 +171,14 @@ namespace SalesTax
                             Range copyRange1 = salesTaxSummarySheet.Range[$"E8:E14"];
                             Range pasteRange1 = salesTaxSummarySheet.Range[$"F8:F14"];
 
+                            pasteRange1.Copy(Type.Missing);
+
                             copyRange1.Copy(Type.Missing);
                             pasteRange1.PasteSpecial(XlPasteType.xlPasteFormulas);
                             copyRange1.PasteSpecial(XlPasteType.xlPasteValues);
+
+                            Range colourPasteRange = salesTaxSummarySheet.Range[$"C8:E14"];
+                            colourPasteRange.PasteSpecial(XlPasteType.xlPasteFormats);
 
                         }
                         break;
