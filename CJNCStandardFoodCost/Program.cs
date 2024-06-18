@@ -43,6 +43,10 @@ namespace CJNCStandardFoodCost
 
                 int monthInt = parsedDate.Month;
 
+                int yearInt = parsedDate.Year;
+
+                int previousYear = yearInt - 1;
+
                 string month = Convert.ToString(parsedDate.Month);
 
                 string year = Convert.ToString(parsedDate.Year);
@@ -57,6 +61,9 @@ namespace CJNCStandardFoodCost
                     previousMonth = monthInt - 1;
 
                 }
+
+                string previousMonthString = previousMonth.ToString();
+                string previousYearString = previousYear.ToString();
 
                 string monthName = parsedDate.ToString("MMM", CultureInfo.InvariantCulture);
 
@@ -77,7 +84,6 @@ namespace CJNCStandardFoodCost
                 Worksheet payRollSheet = payrollPeriodWorkbook.Worksheets[1];
 
                 Range monthColumn = payRollSheet.Range["E1:E" + payRollSheet.UsedRange.Rows.Count];
-
 
                 for (int i = 1; i <= monthColumn.Rows.Count; i++)
                 {
@@ -109,13 +115,10 @@ namespace CJNCStandardFoodCost
                     {
                         break;
                     }
-
-
                 }
 
                 string startDateMonthNumber = Convert.ToString(startDate.Month);
                 string endDateMonthNumber = Convert.ToString(endDate.Month);
-
 
                 Worksheet salesTaxSummarySheet = templateWorkbook.Worksheets["Labor Standard Variance"];
 
@@ -130,14 +133,14 @@ namespace CJNCStandardFoodCost
                 newColumnJ.PasteSpecial(XlPasteType.xlPasteAll);
                 columnK.PasteSpecial(XlPasteType.xlPasteValues);
 
-                Excel.Range formulaRange = salesTaxSummarySheet.Columns["J7:J15"];
+                Excel.Range formulaRange = salesTaxSummarySheet.Range["J7:J15"];
                 formulaRange.Formula = "=+H7+I7";
 
-                Excel.Range formulaRange1 = salesTaxSummarySheet.Columns["J17"];
+                Excel.Range formulaRange1 = salesTaxSummarySheet.Range["J17"];
                 formulaRange1.Formula = "=SUM(J7:J15)";
 
-                Excel.Range formulaRange2 = salesTaxSummarySheet.Columns["J18"];
-                formulaRange1.Formula = "=+J17/C17";
+                Excel.Range formulaRange2 = salesTaxSummarySheet.Range["J18"];
+                formulaRange2.Formula = "=+J17/C17";
 
                 Excel.Range cellJ3 = salesTaxSummarySheet.Range["J3"];
                 cellJ3.Value = date;
@@ -154,6 +157,100 @@ namespace CJNCStandardFoodCost
                 Excel.Range cellC3 = salesTaxSummarySheet.Range["C3"];
                 string valueInC3 = startDate.ToString("M/d") + " to " + endDate.ToString("M/d");
                 cellC3.Value = valueInC3;
+
+                Worksheet pnlSheet = pnlWorkbook.Worksheets[1];
+                Worksheet templatePnlSheet = templateWorkbook.Worksheets[$"P&L {year}-{previousMonthString}"];
+                Worksheet templatePnlDataSheet = templateWorkbook.Worksheets["P&L Data"];
+
+                Excel.Range pnlCopyRange = pnlSheet.Range["A1:Q" + pnlSheet.Rows.Count];
+                Excel.Range pnlPasteRange = templatePnlSheet.Range["C1:S" + templatePnlSheet.Rows.Count];
+
+                pnlCopyRange.Copy(Type.Missing);
+                pnlPasteRange.PasteSpecial(XlPasteType.xlPasteAll);
+
+                templatePnlSheet.Name = $"P&L {year}-{month}";
+
+                var pnlHeaderString = Convert.ToInt32(pnlSheet.Cells[3, 1].Value);
+
+                templatePnlDataSheet.Cells[3, 4].Value = pnlHeaderString;
+                templatePnlDataSheet.Cells[6, 5].Value = $"{month} {year}";
+                templatePnlDataSheet.Cells[6, 7].Value = $"{month} {previousYearString}";
+                templatePnlDataSheet.Cells[6, 13].Value = $"{month} {year}";
+                templatePnlDataSheet.Cells[6, 15].Value = $"{month} {previousYearString}";
+
+                var pnlNetSalesFilter = new object[]
+                {
+                    "         Net Sales"
+                };
+                Range sourceRange = pnlSheet.Range[pnlSheet.Cells[1, 1], pnlSheet.Cells[1, pnlSheet.UsedRange.Column]];
+                pnlSheet.ShowAllData();
+                sourceRange.AutoFilter(3, pnlNetSalesFilter, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+
+                Range pnlDataCopyRange = pnlSheet.Range["A1:Q" + pnlSheet.Rows.Count];
+
+                Worksheet pnlDataNewSheet = pnlWorkbook.Worksheets.Add();
+
+                Range pnlDataPasteRange = pnlDataNewSheet.Range["A1:Q" + pnlDataNewSheet.Rows.Count];
+
+                pnlDataCopyRange.Copy(Type.Missing);
+                pnlDataPasteRange.PasteSpecial(XlPasteType.xlPasteAll);
+
+                Range pnlDataCopyRange1 = pnlDataNewSheet.Range["A2:Q" + pnlDataNewSheet.Rows.Count];
+                Range pnlDataPasteRange1 = templatePnlDataSheet.Range["D7:T" + templatePnlDataSheet.Rows.Count];
+
+
+                Worksheet glSheet = glWorkbook.Worksheets[1];
+                Worksheet salesSheet = templateWorkbook.Worksheets["Sales"];
+
+                var glSheetFilterListGroup = new object[]
+                {
+                    "CJ"
+                };
+                var glSheetFilterListEntity = new object[]
+                {
+                   "2SH",
+                   "3SI"
+
+                };
+                var glSheetFilterListYear = new object[]
+                {
+                   year
+                };
+                var glSheetFilterListMonth = new object[]
+                {
+                   startDateMonthNumber,
+                   endDateMonthNumber
+                };
+
+                var glSheetFilterUser = new object[]
+                {
+                   "Net Sales"
+                };
+
+                Range glSourceRange = glSheet.Range[glSheet.Cells[1, 1], glSheet.Cells[1, glSheet.UsedRange.Column]];
+                glSheet.ShowAllData();
+                sourceRange.AutoFilter(1, glSheetFilterListGroup, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(2, glSheetFilterListEntity, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(3, glSheetFilterListYear, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(4, glSheetFilterListMonth, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(5, ">=" + startDateInString, Excel.XlAutoFilterOperator.xlAnd, "<=" + endDateInString);
+                sourceRange.AutoFilter(8, glSheetFilterUser, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+
+                Range glCopyRange = glSheet.Range["A1:W" + glSheet.Rows.Count];
+
+                Range glPasteRange = salesSheet.Range["A1:W" + salesSheet.Rows.Count];
+
+                glCopyRange.Copy(Type.Missing);
+                glPasteRange.Clear();
+                glPasteRange.PasteSpecial(XlPasteType.xlPasteAll);
+
+                Worksheet salesPivotSheet = templateWorkbook.Worksheets["Pivot Sales"];
+                int salesPivotSheetLastRow = salesPivotSheet.Cells[salesPivotSheet.Rows.Count, 1].End[Excel.XlDirection.xlUp].Row;
+
+                Range salesPivotsheetFormulaRange = salesPivotSheet.Range["C4:C" + salesPivotSheetLastRow];
+                salesPivotsheetFormulaRange.Formula = "=B4";
+
+
 
 
             }
