@@ -14,117 +14,248 @@ namespace WeeklySosYearlyTemplateUpdate
     {
         static void Main(string[] args)
         {
-            string date = "12/30/2024";
 
-            DateTime startDate;
-            DateTime.TryParseExact(date, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out startDate);
-            Calendar cal = CultureInfo.CurrentCulture.Calendar;
-            int weekNumber = cal.GetWeekOfYear(startDate, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+            //string date = "12/30/2024";
 
-            // Determine the year of the given week number
-            int year = GetYearOfWeekNumber(startDate, weekNumber);
+            //DateTime startDate;
+            //DateTime.TryParseExact(date, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out startDate);
+            //Calendar cal = CultureInfo.CurrentCulture.Calendar;
+            //int weekNumber = cal.GetWeekOfYear(startDate, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+
+            //// Determine the year of the given week number
+            //int year = GetYearOfWeekNumber(startDate, weekNumber);
 
 
-            DateTime firstMonday = startDate;
-            while (firstMonday.DayOfWeek != DayOfWeek.Monday)
+            //DateTime firstMonday = startDate;
+            //while (firstMonday.DayOfWeek != DayOfWeek.Monday)
+            //{
+            //    firstMonday = firstMonday.AddDays(1);
+            //}
+
+            DateTime currentDate = new DateTime(2025, 1, 1);
+            DateTime startDate = currentDate;
+            while (startDate.ToString("ddd") != "Mon")
             {
-                firstMonday = firstMonday.AddDays(1);
+                startDate = startDate.AddDays(1);
             }
-
-            string folderPath = @"C:\Users\Public\Documents\Weekly SOS";
-
-            // Get all files in the folder that contain "South" in their names
-            List<string> files = Directory.GetFiles(folderPath)
-                                          .Where(file => file.Contains("South"))
-                                          .ToList();
-
-
-
-            foreach (var file in files)
+           
+            try
             {
-                // Open the Excel file
-                FileInfo existingFile = new FileInfo(file);
+                int LastYear = currentDate.AddYears(-1).Year;
 
-                using (ExcelPackage package = new ExcelPackage(existingFile))
+                string folderPath = @"C:\Users\Public\Documents\Weekly SOS";
+
+                // Get all files in the folder that contain "South" in their names
+                List<string> files = Directory.GetFiles(folderPath)
+                                              .Where(file => file.Contains("South"))
+                                              .ToList();
+
+
+
+                foreach (var file in files)
                 {
-                    ExcelWorksheet worksheet = package.Workbook.Worksheets["Weekly Summary"];
-                    
-                    for (int col = 1; col <= worksheet.Dimension.End.Column; col++)
+                    // Open the Excel file
+                    FileInfo existingFile = new FileInfo(file);
+
+                    using (ExcelPackage package = new ExcelPackage(existingFile))
                     {
-                        if (worksheet.Column(col).Hidden)
+                        ExcelWorksheet worksheet = package.Workbook.Worksheets["Weekly Summary"];
+
+                        int lastUsedRow = worksheet.Dimension.End.Row;
+                        int lastUsedColumn = worksheet.Dimension.End.Column;
+
+                        int regionRow = -1;
+                        for (int row = 1; row <= lastUsedRow; row++)
                         {
-                            worksheet.Column(col).Hidden = false;
+                            var regionValue = worksheet.Cells[row, 1].Value;
+                            if (worksheet.Cells[row, 1].Text.Contains("Region"))
+                            {
+                                regionRow = row;
+                                break;
+                            }
                         }
-                    }
 
-                    worksheet.InsertColumn(6, 1);
-
-                    for (int row = 1; row <= worksheet.Dimension.End.Row; row++)
-                    {
-                        worksheet.Cells[row, 6].StyleID = worksheet.Cells[row, 5].StyleID; 
-                        if (!string.IsNullOrEmpty(worksheet.Cells[row, 5].Formula))
+                        int lastYearColumn = -1;
+                        for (int col = 1; col <= lastUsedColumn; col++)
                         {
-                            worksheet.Cells[row, 6].Formula = worksheet.Cells[row, 5].Formula; 
+                            if (worksheet.Cells[regionRow, col].Text.Contains(LastYear.ToString()))
+                            {
+                                lastYearColumn = col;
+                                break;
+                            }
                         }
-                    }
 
-                    for (int row = 1; row <= worksheet.Dimension.End.Row; row++)
-                    {
-                        worksheet.Cells[row, 5].Value = worksheet.Cells[row, 5].Value; 
-                        worksheet.Cells[row, 5].Value = worksheet.Cells[row, 5].Text; 
-                    }
-
-                    for (int row = 17; row <= worksheet.Dimension.End.Row; row++)
-                    {
-                        for (int col = 7; col <= worksheet.Dimension.End.Column; col++) 
+                        for (int col = 1; col <= lastUsedColumn; col++)
                         {
-                            worksheet.Cells[row, col].Value = null; 
-                            worksheet.Cells[row, col].Style.Fill.PatternType = ExcelFillStyle.None; 
+                            if (worksheet.Column(col).Hidden)
+                            {
+                                worksheet.Column(col).Hidden = false;
+                            }
                         }
+
+                        int startRow = 0;
+                        for (int row = 1; row <= lastUsedRow; row++)
+                        {
+                            var values = worksheet.Cells[row, 4].Value;
+                            if (values == null)
+                            {
+                                continue;
+                            }
+                            if (values is double)
+                            {
+                                startRow = row;
+                                break;
+                            }
+                        }
+
+                        int lastFormulaRow = 0;
+                        for (int row = 1; row <= lastUsedRow; row++)
+                        {
+                            if (worksheet.Cells[1, 1].Text.Contains("Company Avg"))
+                            {
+                                lastFormulaRow = row;
+                                break;
+                            }
+                        }
+
+                        int insertColumn = lastYearColumn + 1;
+                        worksheet.InsertColumn(insertColumn, 1);
+                        var insertColumnName = GetExcelColumnName(insertColumn);
+
+                        for (int row = 1; row <= lastUsedRow; row++)
+                        {
+                            worksheet.Cells[row, insertColumn].StyleID = worksheet.Cells[row, insertColumn - 1].StyleID;
+                            if (!string.IsNullOrEmpty(worksheet.Cells[row, insertColumn -1].Formula))
+                            {
+                                if(worksheet.Cells[row, 1].Text.StartsWith("D"))
+                                {
+                                    worksheet.Cells[row, insertColumn].Formula = $"=IFERROR(AVERAGEIF($B${startRow}:$B${lastFormulaRow - 2},$B{row},{insertColumnName}${startRow}:{insertColumnName}${lastFormulaRow - 2}),\"-\")";
+                                }
+                                else
+                                {
+                                    worksheet.Cells[row, insertColumn].Formula = $"=IFERROR(AVERAGEIF($A${startRow}:$A${lastFormulaRow - 2},$A{row},{insertColumnName}${startRow}:{insertColumnName}${lastFormulaRow - 2}),\"-\")";
+                                }
+                            }
+
+                            if(row == lastFormulaRow)
+                            {
+                                worksheet.Cells[row, insertColumn].Formula = $"=AVERAGE({insertColumnName}{startRow}:{insertColumnName}{lastFormulaRow-2})";
+                            }
+                        }
+
+                        for (int row = 1; row <= lastUsedRow; row++)
+                        {
+                            worksheet.Cells[row, insertColumn - 1].Value = worksheet.Cells[row, insertColumn - 1].Value;
+                            worksheet.Cells[row, insertColumn - 1].Value = worksheet.Cells[row, insertColumn - 1].Text;
+                        }
+
+
+                        for (int row = startRow; row <= lastUsedRow; row++)
+                        {
+                            for (int col = insertColumn + 2; col <= worksheet.Dimension.End.Column; col++)
+                            {
+                                worksheet.Cells[row, col].Value = null;
+                                worksheet.Cells[row, col].Style.Fill.PatternType = ExcelFillStyle.None;
+                            }
+                        }
+
+                        int dateColumn = 0;
+                        for (int col = 1; col <= lastUsedColumn; col++)
+                        {
+                            if(worksheet.Cells[regionRow - 1, col].Text == "1")
+                            {
+                                dateColumn = col;
+                                break;
+                            }
+                        }
+
+                        DateTime currentMonday = startDate;
+                        while (currentMonday.Year == startDate.Year && dateColumn >= 1)
+                        {
+                            worksheet.Cells[regionRow, dateColumn].Value = currentMonday.ToString("MM/dd/yyyy");
+                            currentMonday = currentMonday.AddDays(7); 
+                            dateColumn--;
+                        }
+
+                        if (currentMonday.Year == 2026)
+                        {
+                            worksheet.InsertColumn(dateColumn + 1, 1);
+                            var insert53ColumnName = GetExcelColumnName(dateColumn + 1);
+
+                            for (int row = 1; row <= lastUsedRow; row++)
+                            {
+                                worksheet.Cells[row, dateColumn + 1].StyleID = worksheet.Cells[row, dateColumn + 2].StyleID;
+                                if (!string.IsNullOrEmpty(worksheet.Cells[row, dateColumn + 2].Formula))
+                                {
+                                    if(worksheet.Cells[row, 1].Text.StartsWith("D"))
+                                    {
+                                        worksheet.Cells[row, dateColumn + 1].Formula = $"=IFERROR(AVERAGEIF($A${startRow}:$A${lastFormulaRow - 2},$A{row}, {insert53ColumnName}${startRow}:{insert53ColumnName}${lastFormulaRow - 2}), \"-\")";
+
+                                    }
+                                    else
+                                    {
+                                        worksheet.Cells[row, dateColumn + 1].Formula = $"=IFERROR(AVERAGEIF($B${startRow}:$B${lastFormulaRow - 2},$B{row}, {insert53ColumnName}${startRow}:{insert53ColumnName}${lastFormulaRow - 2}), \"-\")";
+                                    }
+
+                                }
+                            }
+
+                            worksheet.Cells[regionRow, dateColumn + 1].Value = currentMonday.ToString("MM/dd/yyyy");
+                        }
+
+                        string fileName = Path.GetFileName(file);
+
+                        // Save the changes
+                        package.SaveAs($@"C:\Users\Nimap\Documents\WeeklySOSYearlyTemplateUpdate\{fileName}");
                     }
-
-                    // Add the dates of every Monday till the end of the year starting from the last used row in column E
-                    DateTime currentMonday = firstMonday;
-                    int dateColumn = worksheet.Dimension.End.Column; // Starting row for dates is the last used row in column E
-
-                    while (currentMonday.Year == startDate.Year && dateColumn >= 1)
-                    {
-                        worksheet.Cells[5, dateColumn].Value = currentMonday.ToString("MM/dd/yyyy");
-                        currentMonday = currentMonday.AddDays(7); // Move to the next Monday
-                        dateColumn--; // Move to the previous column
-                    }
-
-                    string fileName = Path.GetFileName(file);
-
-                    // Save the changes
-                    package.SaveAs($@"C:\Users\Nimap\Documents\WeeklySOSYearlyTemplateUpdate\{fileName}");
                 }
+
             }
 
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
-        static int GetYearOfWeekNumber(DateTime date, int weekNumber)
+        private static string GetExcelColumnName(int columnNumber)
         {
-            Calendar cal = CultureInfo.CurrentCulture.Calendar;
+            int dividend = columnNumber;
+            string columnName = string.Empty;
 
-            // Determine the first day of the first week for the current year
-            DateTime firstDayOfYear = new DateTime(date.Year, 1, 1);
-            int firstWeekOfYear = cal.GetWeekOfYear(firstDayOfYear, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
-
-            // Determine the first day of the first week for the next year
-            DateTime firstDayOfNextYear = new DateTime(date.Year + 1, 1, 1);
-            int firstWeekOfNextYear = cal.GetWeekOfYear(firstDayOfNextYear, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
-
-            // If the current date's week number is less than the first week's week number of the next year, it's the current year
-            // Otherwise, it's the next year
-            if (weekNumber >= firstWeekOfNextYear)
+            while (dividend > 0)
             {
-                return date.Year + 1;
+                int modulo = (dividend - 1) % 26;
+                columnName = Convert.ToChar(65 + modulo) + columnName;
+                dividend = (dividend - modulo) / 26;
             }
-            else
-            {
-                return date.Year;
-            }
+
+            return columnName;
         }
     }
 }
+
+        //static int GetYearOfWeekNumber(DateTime date, int weekNumber)
+        //{
+        //    Calendar cal = CultureInfo.CurrentCulture.Calendar;
+
+//    // Determine the first day of the first week for the current year
+//    DateTime firstDayOfYear = new DateTime(date.Year, 1, 1);
+//    int firstWeekOfYear = cal.GetWeekOfYear(firstDayOfYear, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+
+//    // Determine the first day of the first week for the next year
+//    DateTime firstDayOfNextYear = new DateTime(date.Year + 1, 1, 1);
+//    int firstWeekOfNextYear = cal.GetWeekOfYear(firstDayOfNextYear, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+
+//    // If the current date's week number is less than the first week's week number of the next year, it's the current year
+//    // Otherwise, it's the next year
+//    if (weekNumber >= firstWeekOfNextYear)
+//    {
+//        return date.Year + 1;
+//    }
+//    else
+//    {
+//        return date.Year;
+//    }
+//}
+
