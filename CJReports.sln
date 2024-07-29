@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CJNCStandardFoodCost", "CJN
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeeklySosYearlyTemplateUpdate", "WeeklySosYearlyTemplateUpdate\WeeklySosYearlyTemplateUpdate.csproj", "{6F399F93-3B16-4D30-8109-3BF9DC8C4545}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stock Report", "Stock Report\Stock Report.csproj", "{FD57B895-458B-4B32-A356-2DAED1A42A83}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,10 @@ Global
 		{6F399F93-3B16-4D30-8109-3BF9DC8C4545}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F399F93-3B16-4D30-8109-3BF9DC8C4545}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F399F93-3B16-4D30-8109-3BF9DC8C4545}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD57B895-458B-4B32-A356-2DAED1A42A83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD57B895-458B-4B32-A356-2DAED1A42A83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD57B895-458B-4B32-A356-2DAED1A42A83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD57B895-458B-4B32-A356-2DAED1A42A83}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
