@@ -16,17 +16,18 @@ namespace Stock_Report
     {
         static async Task Main(string[] args)
         {
-            string filePath = $@"C:\Users\jadha\Downloads\2404 Stocks-Consolidated - 04-30-2024 v8 - Copy.xlsx";
-            string targetPath = $@"C:\Users\jadha\Downloads\2404 Stocks-Consolidated - 04-30-2024 v8 Test.xlsx";
-            string sourcePath = $@"C:\Users\jadha\Downloads\Transactions_Wednesday_May_01_2024_11-50AM.xlsx";
-            string date = "04/2024";
+            string filePath = $@"C:\Users\Nimap\Documents\StockReport\Input files\2404_Stocks-Consolidated_-_04-30-2024_v11_rmUNfQU.xlsx";
+            string targetPath = $@"C:\Users\Nimap\Documents\StockReport\Test Output\2404 Stocks-Consolidated - 04-30-2024 v8 Test.xlsx";
+            string sourcePath = $@"C:\Users\Nimap\Documents\StockReport\Input files\Transactions_Saturday_June_01_2024_6-15PM_oIbGEfJ.xlsx";
+            string date = "05/2024";
 
             bool isNewYear = false;
             DateTime currentDate = new DateTime(Convert.ToInt16(date.Split('/')[1]), Convert.ToInt16(date.Split('/')[0]), 1).AddMonths(1).AddDays(-1);
             DateTime previousMonth = currentDate.AddMonths(-1);
             DateTime nextMonth = currentDate.AddMonths(1);
-            Dictionary<string, DateTime> boughtStocksWithDate = new Dictionary<string, DateTime>();
-            Dictionary<string, double> FinalValuesAfterSold = new Dictionary<string, double>();
+            Dictionary<string, List<DateTime>> boughtStocksWithDate = new Dictionary<string, List<DateTime>>();
+            //List<KeyValuePair<string, DateTime>> boughtStocksWithDate = new List<KeyValuePair<string, DateTime>>();
+            Dictionary<string, List<double>> FinalValuesAfterSold = new Dictionary<string, List<double>>();
             Dictionary<string, double> SoldStocks = new Dictionary<string, double>();
             List<string> Stocks = new List<string>();
             List<string> Accounts = new List<string>();
@@ -175,12 +176,18 @@ namespace Stock_Report
                                 string stockName = $"{sourceWs.Cells[row, 7].Value.ToString()} {sourceWs.Cells[row, 8].Value.ToString().Trim()}";
                                 string amount = Convert.ToString(-Math.Round(Convert.ToDouble(sourceWs.Cells[row, 12].Value) / 1000));
                                 string quantity = sourceWs.Cells[row, 10].Value.ToString();
-                                string compositeKey = $"Stock:{stockName}Account:{accountWithName}";
+                                string compositeKey = $"Stock:{stockName}Account:{accountWithName}"; 
                                 BoughtStocks.Add(stockName);
                                 BoughtAccounts.Add(accountWithName);
                                 BoughtValues.Add(amount);
                                 BoughtQuantities.Add(quantity);
-                                boughtStocksWithDate.Add(compositeKey, buyDate);
+                                if (!boughtStocksWithDate.ContainsKey(compositeKey))
+                                {
+                                    boughtStocksWithDate.Add(compositeKey, new List<DateTime>());
+                                }
+                                boughtStocksWithDate[compositeKey].Add(buyDate);
+                                //boughtStocksWithDate.Add(compositeKey, buyDate);
+                                //boughtStocksWithDate.Add(new KeyValuePair<string, DateTime>(compositeKey, buyDate));
 
                             }
                             else if (activityCell.ToString().ToLower().StartsWith("ach"))
@@ -315,7 +322,14 @@ namespace Stock_Report
                                                     else
                                                     {
                                                         double varianceValue = minQuantity - tempQuantity;
-                                                        FinalValuesAfterSold.Add($"Stock:{minStock}Account:{minAccount}Amount:{minAmount}", varianceValue);
+                                                        double amountToMinus = varianceValue * minAmount / minAmount;
+                                                        minAmount = -amountToMinus;
+                                                        //FinalValuesAfterSold.Add($"Stock:{minStock}Account:{minAccount}Amount:{minAmount}", varianceValue);
+                                                        FinalValuesAfterSold.Add($"Stock:{minStock}Account:{minAccount}", new List<double>());
+                                                        //At 0 Indexed we have amount value;
+                                                        FinalValuesAfterSold[$"Stock:{minStock}Account:{minAccount}"].Add(minAmount);
+                                                        //At 1 Indexed we have Quantity Value;
+                                                        FinalValuesAfterSold[$"Stock:{minStock}Account:{minAccount}"].Add(varianceValue);
                                                         purchaseAmount = minPurchaseAmount;
                                                         prevMonthAmount = minAmount;
 
@@ -504,7 +518,7 @@ namespace Stock_Report
             }
             return value;
         }
-        public static async Task<Tuple<Dictionary<string, List<int>>, Dictionary<string, double>>> CreateMainTable(OfficeOpenXml.ExcelWorksheet ws, int row, int srNo, Tuple<List<string>, List<string>, List<string>, List<string>, List<string>> StockData, Tuple<List<string>, List<string>, List<string>, List<string>> BoughtStockData, Tuple<double, double, double> CashRowValues, Dictionary<string, double> SoldStocks, Dictionary<string, double> FinalValuesAfterSoldStocks)
+        public static async Task<Tuple<Dictionary<string, List<int>>, Dictionary<string, double>>> CreateMainTable(OfficeOpenXml.ExcelWorksheet ws, int row, int srNo, Tuple<List<string>, List<string>, List<string>, List<string>, List<string>> StockData, Tuple<List<string>, List<string>, List<string>, List<string>> BoughtStockData, Tuple<double, double, double> CashRowValues, Dictionary<string, double> SoldStocks, Dictionary<string, List<double>> FinalValuesAfterSoldStocks)
         {
             List<string> Stocks = StockData.Item1;
             List<string> Accounts = StockData.Item2;
@@ -573,12 +587,22 @@ namespace Stock_Report
                     ws.Cells[row, 10].Value = marketPrice;
 
                 }
-                //Changing the current month No.Of stock quantity if the key matches for the finalvalue of stocks;
-                string finalValueAfterSoldStockKey = $"Stock:{Stocks[i]}Account:{Accounts[i]}Amount:{Values[i]}";
+                ////Changing the current month No.Of stock quantity if the key matches for the finalvalue of stocks;
+                //string finalValueAfterSoldStockKey = $"Stock:{Stocks[i]}Account:{Accounts[i]}Amount:{Values[i]}";
+                //if (FinalValuesAfterSoldStocks.ContainsKey(finalValueAfterSoldStockKey))
+                //{
+                //    Quantities[i] = FinalValuesAfterSoldStocks[finalValueAfterSoldStockKey].ToString();
+                //}
+                string finalValueAfterSoldStockKey = $"Stock:{Stocks[i]}Account:{Accounts[i]}";
                 if (FinalValuesAfterSoldStocks.ContainsKey(finalValueAfterSoldStockKey))
                 {
-                    Quantities[i] = FinalValuesAfterSoldStocks[finalValueAfterSoldStockKey].ToString();
+                    string tempQuantity = Quantities[i];
+                    Values[i] = Convert.ToString(FinalValuesAfterSoldStocks[finalValueAfterSoldStockKey][0]);
+                    Quantities[i] = Convert.ToString(FinalValuesAfterSoldStocks[finalValueAfterSoldStockKey][1]);
+                    PurchaseValues[i] =Convert.ToString(Convert.ToDouble(Quantities[i]) * Convert.ToDouble(PurchaseValues[i]) / Convert.ToDouble(tempQuantity));
+
                 }
+
                 StockLineItemsFormatterCustomFormat(ws.Cells[row, 10], false, true);
                 if (isUnited)
                 {
@@ -1053,7 +1077,7 @@ namespace Stock_Report
             }
         }
 
-        public static void CreateSideTable(OfficeOpenXml.ExcelWorksheet ws, int col, int row, DateTime currentDate, Tuple<List<string>, List<string>> StockData, List<string> BoughtStocks, List<string> BoughtAccounts, Dictionary<string, DateTime> BoughtStocksDate)
+        public static void CreateSideTable(OfficeOpenXml.ExcelWorksheet ws, int col, int row, DateTime currentDate, Tuple<List<string>, List<string>> StockData, List<string> BoughtStocks, List<string> BoughtAccounts, Dictionary<string,List< DateTime>> BoughtStocksDate)
         {
             List<string> Stocks = StockData.Item1;
             List<string> Accounts = StockData.Item2;
@@ -1091,6 +1115,7 @@ namespace Stock_Report
                 StockLineItemsFormatterCustomRedFormat(ws.Cells[row, col + 10], false, true);
                 row++;
             }
+            Dictionary<string, int> RecordCompositeKeys = new Dictionary<string, int>();
 
             for (int i = 0; i < BoughtStocks.Count; i++)
             {
@@ -1104,7 +1129,19 @@ namespace Stock_Report
                 StockLineItemsTwoDecimalPlacesFormat(ws.Cells[row, col + 3], false);
                 //Bought Stocks Purchase date should be here with matching Composite Key.
                 string compositeKey = $"Stock:{BoughtStocks[i]}Account:{BoughtAccounts[i]}";
-                ws.Cells[row, col + 4].Value = BoughtStocksDate[compositeKey];
+                if (!RecordCompositeKeys.ContainsKey(compositeKey))
+                {
+                    RecordCompositeKeys.Add(compositeKey, 0);
+                }
+                else
+                {
+                    RecordCompositeKeys[compositeKey]++;
+                }
+
+                //handle the duplicate exception using below line
+                //var matchingEntries = BoughtStocksDate.Where(kvp => kvp.Key == compositeKey).FirstOrDefault();
+                //ws.Cells[row, col + 4].Value = matchingEntries;
+                  ws.Cells[row, col + 4].Value = BoughtStocksDate[compositeKey][RecordCompositeKeys[compositeKey]];
 
                 StockLineItemsDateFormat(ws.Cells[row, col + 4], false);
                 ws.Cells[row, col + 5].Formula = $"=J{row}";
@@ -1131,6 +1168,7 @@ namespace Stock_Report
                 {
                     continue;
                 }
+                //var x = ws.Cells[i, 28].Value;
                 double daysHolding = Convert.ToDouble(ws.Cells[i, 28].Value);
                 if (daysHolding > 365)
                 {
