@@ -1109,9 +1109,9 @@ namespace Stock_Report
                 StockLineItemsDateFormat(ws.Cells[row, col + 7], false);
                 ws.Cells[row, col + 8].Formula = $"=DATEDIF(X{row}, AA{row}, \"D\")";
                 StockLineItemsFormatterCustomFormat(ws.Cells[row, col + 8], false, true);
-                ws.Cells[row, col + 9].Formula = $"=Z{row}/U{row}*100";
+                ws.Cells[row, col + 9].Formula = $"=IFERROR(Z{row}/U{row}*100,0)";
                 StockLineItemsFormatterCustomRedFormat(ws.Cells[row, col + 9], false, true);
-                ws.Cells[row, col + 10].Formula = $"=AC{row}/AB{row}*256";
+                ws.Cells[row, col + 10].Formula = $"=IFERROR(AC{row}/AB{row}*256,0)";
                 StockLineItemsFormatterCustomRedFormat(ws.Cells[row, col + 10], false, true);
                 row++;
             }
@@ -1152,9 +1152,9 @@ namespace Stock_Report
                 StockLineItemsDateFormat(ws.Cells[row, col + 7], false);
                 ws.Cells[row, col + 8].Formula = $"=DATEDIF(X{row}, AA{row}, \"D\")";
                 StockLineItemsFormatterCustomFormat(ws.Cells[row, col + 8], false, true);
-                ws.Cells[row, col + 9].Formula = $"=Z{row}/U{row}*100";
+                ws.Cells[row, col + 9].Formula = $"=IFERROR(Z{row}/U{row}*100,0)";
                 StockLineItemsFormatterCustomRedFormat(ws.Cells[row, col + 9], false, true);
-                ws.Cells[row, col + 10].Formula = $"=AC{row}/AB{row}*256";
+                ws.Cells[row, col + 10].Formula = $"=IFERROR(AC{row}/AB{row}*256,0)";
                 StockLineItemsFormatterCustomRedFormat(ws.Cells[row, col + 10], false, true);
                 row++;
             }
@@ -1384,10 +1384,24 @@ namespace Stock_Report
             ws.Cells[19, 3].Value = 0;
 
             // 18. Interest Income Filter LPL file Activity Column Interests Values /1000
-            ws.Cells[20, 3].Value = LPLValues["Interest"];
+            if (LPLValues.ContainsKey("Interest"))
+            {
+                ws.Cells[20, 3].Value = LPLValues["Interest"];
+            }
+            else
+            {
+                ws.Cells[20, 3].Value = 0;
+            }
 
             // 19. Dividends  Filter LPL file Activity Column Dividemds Values /1000
-            ws.Cells[21, 3].Value = LPLValues["Dividend"];
+            if (LPLValues.ContainsKey("Dividend"))
+            {
+                ws.Cells[21, 3].Value = LPLValues["Dividend"];
+            }
+            else
+            {
+                ws.Cells[21, 3].Value = 0;
+            }
 
             // 20. Total Cash Out =SUM(C23:C28)
             ws.Cells[22, 3].Formula = "=SUM(C23:C28)";
@@ -1396,7 +1410,14 @@ namespace Stock_Report
             ws.Cells[23, 3].Value = 0;
 
             // 22. Transfer Out Ach funds Lpl file activity filter column to ach funds .
-            ws.Cells[24, 3].Value = LPLValues["TransferOut"];
+            if (LPLValues.ContainsKey("TransferOut"))
+            {
+                ws.Cells[24, 3].Value = LPLValues["TransferOut"];
+            }
+            else
+            {
+                ws.Cells[24, 3].Value = 0;
+            }
 
             // 23. Purchase  Cash Row Buy Column
             ws.Cells[25, 3].Formula = CreateIndividualSheetFormula(ConsolidateFormulaValues["PurchaseCash"][1], ConsolidateFormulaValues["PurchaseCash"][0]);
@@ -1415,7 +1436,14 @@ namespace Stock_Report
             }
 
             // 26. Fees and Expenses Filter LPL file Activity Column Fee values /1000.
-            ws.Cells[28, 3].Value = LPLValues["FeesExpenses"];
+            if (LPLValues.ContainsKey("FeesExpenses"))
+            {
+                ws.Cells[28, 3].Value = LPLValues["FeesExpenses"];
+            }
+            else
+            {
+                ws.Cells[28, 3].Value = 0;
+            }
 
             // 27. Total Stock Increase =SUM(C30:C33)
             ws.Cells[29, 3].Formula = "=SUM(C30:C33)";
@@ -1439,7 +1467,14 @@ namespace Stock_Report
             ws.Cells[35, 3].Formula = CreateIndividualSheetFormula(ConsolidateFormulaValues["UnrealizedLoss"][1], ConsolidateFormulaValues["UnrealizedLoss"][0]);
 
             // 34. Realized Loss Bought Stocks Negative values of profit/loss column
-            ws.Cells[36, 3].Value = ConsolidateValues["RealizedLoss"];
+            if (ConsolidateValues.ContainsKey("RealizedLoss"))
+            {
+                ws.Cells[36, 3].Value = ConsolidateValues["RealizedLoss"];
+            }
+            else
+            {
+                ws.Cells[36, 3].Value = 0;
+            }
 
             // 35. Sold Sale value of cash row Sale column.
             ws.Cells[37, 3].Formula = CreateIndividualSheetFormula(ConsolidateFormulaValues["SoldCash"][1], ConsolidateFormulaValues["SoldCash"][0]);
@@ -1448,10 +1483,24 @@ namespace Stock_Report
             ws.Cells[38, 3].Value = 0;
 
             // 37. Profit on Sale of Stocks Over Purchase (LTD $) LTD Change ($) sold stocks all positive values.
-            ws.Cells[39, 3].Value = ConsolidateValues["ProfitOnSale"];
+            if (ConsolidateValues.ContainsKey("ProfitOnSale"))
+            {
+                ws.Cells[39, 3].Value = ConsolidateValues["ProfitOnSale"];
+            }
+            else
+            {
+                ws.Cells[39, 3].Value = 0;
+            }
 
             // 38. Loss on Sale of Stocks Over Purchase (LTD $) LTD Change($) sold stokcs values all negative values.
-            ws.Cells[40, 3].Value = ConsolidateValues["LossOnSale"];
+            if (ConsolidateValues.ContainsKey("LossOnSale"))
+            {
+                ws.Cells[40, 3].Value = ConsolidateValues["LossOnSale"];
+            }
+            else
+            {
+                ws.Cells[40, 3].Value = 0;
+            }
 
             // 39. Cost of Change Don't know .
             ws.Cells[41, 3].Value = 0;
@@ -1551,9 +1600,9 @@ namespace Stock_Report
             ws.Cells[47, ytdCol].Formula = $"=SUM({MonthColumns[0]}47:{MonthColumns[MonthColumns.Count - 1]}47)";
             ws.Cells[48, ytdCol].Formula = $"=K12/K7*100";
             ws.Cells[49, ytdCol].Formula = $"{MonthColumns[0]}49";
-            ws.Cells[50, ytdCol].Formula = $"{MonthColumns}50";
-            ws.Cells[51, ytdCol].Formula = $"{MonthColumns}51";
-            ws.Cells[52, ytdCol].Formula = $"{MonthColumns}52";
+            ws.Cells[50, ytdCol].Formula = $"{MonthColumns[0]}50";
+            ws.Cells[51, ytdCol].Formula = $"{MonthColumns[0]}51";
+            ws.Cells[52, ytdCol].Formula = $"{MonthColumns[0]}52";
         }
 
         public static List<string> GetAllMonthsOfCurrentYear(OfficeOpenXml.ExcelWorksheet ws, DateTime currentDate)
@@ -1587,7 +1636,16 @@ namespace Stock_Report
 
         public static void UpdateAverageFormulaForConsolidatedSheet(int avgCol, List<string> MonthLetters, OfficeOpenXml.ExcelWorksheet ws)
         {
+            int endRow = 0;
             for (int row = 3; row <= ws.Dimension.End.Row; row++)
+            {
+                if(ws.Cells[row, 1].Value == null)
+                {
+                    endRow = row - 1; 
+                    break;
+                }
+            }
+            for (int row = 3; row <= endRow; row++)
             {
                 string averageFormula = $"=AVERAGE({CreateAverageFormulaForConsolidatedSheet(MonthLetters, row)})";
                 ws.Cells[row, avgCol].Formula = averageFormula;
