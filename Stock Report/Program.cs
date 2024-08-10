@@ -48,6 +48,12 @@ namespace Stock_Report
             double FeeAmount = 0;
             double profitDivideLoss = 0;
 
+            DateTime lastDate = new DateTime(Convert.ToInt32(date.Split('/')[1]), Convert.ToInt32(date.Split('/')[0]), 1).AddMonths(1).AddDays(-1);
+            string lastDay = lastDate.Day.ToString();
+            string Month = lastDate.Month.ToString();
+            string Year = lastDate.Year.ToString();
+
+
             while (previousMonth.ToString("MMM") != currentDate.ToString("MMM"))
             {
                 previousMonth = previousMonth.AddDays(1);
@@ -192,7 +198,7 @@ namespace Stock_Report
                             }
                             else if (activityCell.ToString().ToLower().StartsWith("ach"))
                             {
-                                transferAmount += Math.Round(Convert.ToDouble(sourceWs.Cells[row, 12].Value) / 1000);
+                                transferAmount += Convert.ToDouble(sourceWs.Cells[row, 12].Value) / 1000; ////// Fixxeddddd
                                 if (!ConsolidateSheetLplValues.ContainsKey("TransferOut"))
                                 {
                                     ConsolidateSheetLplValues.Add("TransferOut", Convert.ToDouble(sourceWs.Cells[row, 12].Value) / 1000);
@@ -269,10 +275,16 @@ namespace Stock_Report
                                 double quantity = -Convert.ToDouble(sourceWs.Cells[row, 10].Value);
                                 string nickName = IdentifyName(sourceWs.Cells[row, 1].Value.ToString());
                                 string accountNo = $"{sourceWs.Cells[row, 3].Value.ToString()}-{accountCell.ToString()}-{nickName}";
+
+                                bool isStockValueTrimmed = FindValue(Stocks, stockName);
                                 //Check if the the stock name and account number is matching then go further for changing the quantity and amount.
-                                if (Stocks.Contains(stockName) && Accounts.Contains(accountNo))
+                                if ((Stocks.Contains(stockName) && Accounts.Contains(accountNo))|| (isStockValueTrimmed && Accounts.Contains(accountNo)))
                                 {
                                     int index = Stocks.FindIndex(stock => stock == stockName);
+                                    if (index == -1)
+                                    {
+                                        index = FindIndex(Stocks, stockName);
+                                    }
                                     double stockAmountPrevMonth = Convert.ToDouble(Values[index]);
                                     double stockQuantity = Convert.ToDouble(Quantities[index]);
                                     double purchaseValue = Convert.ToDouble(PurchaseValues[index]);
@@ -301,6 +313,10 @@ namespace Stock_Report
                                             while (totalQuantities < tempQuantity)
                                             {
                                                 int secondIndex = Stocks.FindIndex(stock => stock == stockName);
+                                                if (secondIndex == -1)
+                                                {
+                                                    secondIndex = FindIndex(Stocks, stockName);
+                                                }
                                                 double minQuantity = Convert.ToDouble(Quantities[secondIndex]);
                                                 double minAmount = Convert.ToDouble(Values[secondIndex]);
                                                 double minPurchaseAmount = Convert.ToDouble(PurchaseValues[secondIndex]);
@@ -322,14 +338,18 @@ namespace Stock_Report
                                                     else
                                                     {
                                                         double varianceValue = minQuantity - tempQuantity;
-                                                        double amountToMinus = varianceValue * minAmount / minAmount;
+                                                        double amountToMinus = varianceValue * minAmount / tempQuantity;
                                                         minAmount = -amountToMinus;
+                                                        double variancePurchaseAmount = varianceValue * minPurchaseAmount / tempQuantity;
+                                                        minPurchaseAmount -= variancePurchaseAmount;
                                                         //FinalValuesAfterSold.Add($"Stock:{minStock}Account:{minAccount}Amount:{minAmount}", varianceValue);
                                                         FinalValuesAfterSold.Add($"Stock:{minStock}Account:{minAccount}", new List<double>());
                                                         //At 0 Indexed we have amount value;
                                                         FinalValuesAfterSold[$"Stock:{minStock}Account:{minAccount}"].Add(minAmount);
                                                         //At 1 Indexed we have Quantity Value;
                                                         FinalValuesAfterSold[$"Stock:{minStock}Account:{minAccount}"].Add(varianceValue);
+                                                        //At 2 Indexed we have Purchase Value;
+                                                        FinalValuesAfterSold[$"Stock:{minStock}Account:{minAccount}"].Add(minPurchaseAmount);
                                                         purchaseAmount = minPurchaseAmount;
                                                         prevMonthAmount = minAmount;
 
@@ -341,6 +361,39 @@ namespace Stock_Report
 
                                             string compositeValues = $"Stock:{stockName}Account:{accountHolder}OriginalPurchase:{purchaseAmount}StockPrevValues:{prevMonthAmount}Quantity:{quantity}";
                                             SoldStocks.Add(compositeValues, sellAmount);
+                                        }
+                                        else
+                                        {
+                                            int secondIndex = Stocks.FindIndex(stock => stock == stockName);
+                                            if (secondIndex == -1)
+                                            {
+                                                secondIndex = FindIndex(Stocks, stockName);
+                                            }
+                                            double prevMonthAmount = 0;
+                                            double purchaseAmount = 0;
+                                            double minPurchaseAmount = Convert.ToDouble(PurchaseValues[secondIndex]);
+                                            double varianceValue = stockQuantity - quantity;
+                                            double amountToMinus = varianceValue * stockAmountPrevMonth / stockQuantity;
+                                            stockAmountPrevMonth = -amountToMinus;
+                                            double variancePurchaseAmount = varianceValue * minPurchaseAmount / stockQuantity;
+                                            minPurchaseAmount -= variancePurchaseAmount;
+                                            //FinalValuesAfterSold.Add($"Stock:{minStock}Account:{minAccount}Amount:{minAmount}", varianceValue);
+                                            FinalValuesAfterSold.Add($"Stock:{stockName}Account:{accountNo}", new List<double>());
+                                            //At 0 Indexed we have amount value;
+                                            FinalValuesAfterSold[$"Stock:{stockName}Account:{accountNo}"].Add(stockAmountPrevMonth);
+                                            //At 1 Indexed we have Quantity Value;
+                                            FinalValuesAfterSold[$"Stock:{stockName}Account:{accountNo}"].Add(varianceValue);
+                                            //At 2 Indexed we have Purchase Value;
+                                            FinalValuesAfterSold[$"Stock:{stockName}Account:{accountNo}"].Add(minPurchaseAmount);
+                                            string accountHolder = $"{sourceWs.Cells[row, 3].Value.ToString()}-{accountCell.ToString()}-{nickName}";
+                                            prevMonthAmount = stockAmountPrevMonth;
+                                            purchaseAmount = minPurchaseAmount;
+                                            string compositeValues = $"Stock:{stockName}Account:{accountHolder}OriginalPurchase:{purchaseAmount}StockPrevValues:{prevMonthAmount}Quantity:{quantity}";
+                                            SoldStocks.Add(compositeValues, sellAmount);
+
+
+
+
                                         }
                                     }
 
@@ -599,7 +652,7 @@ namespace Stock_Report
                     string tempQuantity = Quantities[i];
                     Values[i] = Convert.ToString(FinalValuesAfterSoldStocks[finalValueAfterSoldStockKey][0]);
                     Quantities[i] = Convert.ToString(FinalValuesAfterSoldStocks[finalValueAfterSoldStockKey][1]);
-                    PurchaseValues[i] =Convert.ToString(Convert.ToDouble(Quantities[i]) * Convert.ToDouble(PurchaseValues[i]) / Convert.ToDouble(tempQuantity));
+                    PurchaseValues[i] =Convert.ToString(FinalValuesAfterSoldStocks[finalValueAfterSoldStockKey][2]);
 
                 }
 
@@ -1825,6 +1878,40 @@ namespace Stock_Report
             }
             return Tuple.Create(firstMonth, lastMonth);
         }
+
+        public static bool FindValue(List<string> list,string value)
+        {
+            string result = Regex.Replace(value, @"\s+", "");
+            int start = 0;
+            while(start<list.Count)
+            {
+                string stockName = Regex.Replace(list[start], @"\s+", "");
+                if (stockName == result)
+                {
+                    return true;
+                }
+                start++;
+            }
+            return false;
+        }
+
+        public static int FindIndex(List<string> list, string value)
+        {
+
+            string result = Regex.Replace(value, @"\s+", "");
+            int start = 0;
+            while (start < list.Count)
+            {
+                string stockName = Regex.Replace(list[start], @"\s+", "");
+                if (stockName == result)
+                {
+                    return start;
+                }
+                start++;
+            }
+            return 0;
+        }
+
     }
 }
 
