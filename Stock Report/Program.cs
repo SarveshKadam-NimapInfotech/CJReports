@@ -7,8 +7,10 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using System.Text.RegularExpressions;
-using System.Linq;
-using OfficeOpenXml.FormulaParsing;
+using Excel = Microsoft.Office.Interop.Excel;
+using System.Runtime.InteropServices;
+using Microsoft.Office.Interop.Excel;
+using ClosedXML.Excel;
 
 namespace Stock_Report
 {
@@ -16,9 +18,9 @@ namespace Stock_Report
     {
         static async Task Main(string[] args)
         {
-            string filePath = $@"C:\Users\Nimap\Documents\StockReport\Input files\2404_Stocks-Consolidated_-_04-30-2024_v11_rmUNfQU.xlsx";
+            string filePath = $@"C:\Users\Nimap\Documents\StockReport\Input files\stockFile.xlsx";
             string targetPath = $@"C:\Users\Nimap\Documents\StockReport\Test Output\2404 Stocks-Consolidated - 04-30-2024 v8 Test.xlsx";
-            string sourcePath = $@"C:\Users\Nimap\Documents\StockReport\Input files\Transactions_Saturday_June_01_2024_6-15PM_oIbGEfJ.xlsx";
+            string sourcePath = $@"C:\Users\Nimap\Documents\StockReport\Input files\lplfile.xlsx";
             string date = "05/2024";
 
             bool isNewYear = false;
@@ -69,47 +71,44 @@ namespace Stock_Report
             string formatDateNextMonth = $"{nextMonth.ToString("MM")}/{nextMonth.ToString("dd")}/{nextMonth.ToString("yy")}";
             string formatForStockHoldingHeader = $"{currentDate.ToString("MM")}/{currentDate.ToString("dd")}";
             Dictionary<string, int> ColumnMapper = new Dictionary<string, int>();
+            List<string> MainTableHeaders = new List<string>
+            {
+                "Sr.",
+                "Stock",
+                "Acct #",
+                $"No of Stock on {formatDatePrevMonth}",
+                $"Value as on {formatDatePrevMonth}",
+                "Buy $",
+                    "Sale $",
+                    "Transfer $",
+                    "Profit/ Loss $",
+                    "Mkt Price Per Unit $",
+                    $"Value as on {formatDateCurrentMonth}",
+                    "MTM Profit/(Loss) $",
+                    "Chg %",
+                    $"No of Stock on {formatDateCurrentMonth}",
+                    "Original Value of Purchase",
+                    "LTD Chg $",
+                    "LTD Chg %"
+            };
+            List<string> SideTableHeaders = new List<string>
+            {
+                "Stock",
+                "Fund Invst",
+                "Units",
+                "Pur.Price Per Stock",
+                "Pur Date",
+                $"Sh Price on {formatForStockHoldingHeader}",
+                "LTD Profit/ Loss",
+                "Current Date",
+                "Days Holding",
+                "LTD %",
+                "YOY %"
+            };
             try
             {
                 using (ExcelPackage excelPackage = new ExcelPackage(new FileInfo(filePath)))
                 {
-
-                    List<string> MainTableHeaders = new List<string>
-                    {
-                      "Sr.",
-                      "Stock",
-                       "Acct #",
-                      $"No of Stock on {formatDatePrevMonth}",
-                       $"Value as on {formatDatePrevMonth}",
-                        "Buy $",
-                            "Sale $",
-                            "Transfer $",
-                            "Profit/ Loss $",
-                            "Mkt Price Per Unit $",
-                            $"Value as on {formatDateCurrentMonth}",
-                            "MTM Profit/(Loss) $",
-                            "Chg %",
-                            $"No of Stock on {formatDateCurrentMonth}",
-                            "Original Value of Purchase",
-                            "LTD Chg $",
-                            "LTD Chg %"
-                    };
-                    List<string> SideTableHeaders = new List<string>
-                    {
-                        "Stock",
-                        "Fund Invst",
-                        "Units",
-                        "Pur.Price Per Stock",
-                        "Pur Date",
-                        $"Sh Price on {formatForStockHoldingHeader}",
-                        "LTD Profit/ Loss",
-                        "Current Date",
-                        "Days Holding",
-                        "LTD %",
-                        "YOY %"
-                    };
-
-
                     ExcelWorkbook wb = excelPackage.Workbook;
                     ExcelWorksheet individualWs = wb.Worksheets["Individual Stocks"];
                     ExcelWorksheet stocksConsolidatedWs = wb.Worksheets["Stocks Consolidated"];
@@ -182,7 +181,7 @@ namespace Stock_Report
                                 string stockName = $"{sourceWs.Cells[row, 7].Value.ToString()} {sourceWs.Cells[row, 8].Value.ToString().Trim()}";
                                 string amount = Convert.ToString(-Math.Round(Convert.ToDouble(sourceWs.Cells[row, 12].Value) / 1000));
                                 string quantity = sourceWs.Cells[row, 10].Value.ToString();
-                                string compositeKey = $"Stock:{stockName}Account:{accountWithName}"; 
+                                string compositeKey = $"Stock:{stockName}Account:{accountWithName}";
                                 BoughtStocks.Add(stockName);
                                 BoughtAccounts.Add(accountWithName);
                                 BoughtValues.Add(amount);
@@ -278,7 +277,7 @@ namespace Stock_Report
 
                                 bool isStockValueTrimmed = FindValue(Stocks, stockName);
                                 //Check if the the stock name and account number is matching then go further for changing the quantity and amount.
-                                if ((Stocks.Contains(stockName) && Accounts.Contains(accountNo))|| (isStockValueTrimmed && Accounts.Contains(accountNo)))
+                                if ((Stocks.Contains(stockName) && Accounts.Contains(accountNo)) || (isStockValueTrimmed && Accounts.Contains(accountNo)))
                                 {
                                     int index = Stocks.FindIndex(stock => stock == stockName);
                                     if (index == -1)
@@ -402,6 +401,54 @@ namespace Stock_Report
                             }
                         }
                     }
+                }
+
+                int monthHeaderRows = 3;
+                int totalHeaderLineItem = 1;
+                int cashRow = 1;
+                int totalSpacesRows = 2;
+                int TotalRowToAdd = monthHeaderRows + Stocks.Count + BoughtStocks.Count + totalHeaderLineItem + SoldStocks.Count + totalHeaderLineItem + cashRow + totalHeaderLineItem + totalSpacesRows;
+
+                using (var workbook = new XLWorkbook(filePath))
+                {
+                    // Get the worksheet
+                    var individualWs = workbook.Worksheet("Individual Stocks");
+
+                    // Insert rows
+                    individualWs.Row(1).InsertRowsAbove(TotalRowToAdd);
+
+                    // Save the workbook
+                    workbook.Save();
+                }
+
+                //Excel.Application excelApp = new Excel.Application();
+                //excelApp.Visible = true;
+                //excelApp.Interactive = false;
+                //excelApp.DisplayAlerts = false;
+                //excelApp.DisplayClipboardWindow = false;
+                //excelApp.DisplayStatusBar = false;
+                //Excel.Workbook workbook = excelApp.Workbooks.Open(filePath);
+                //Excel.Worksheet worksheet = workbook.Worksheets["Individual Stocks"];
+
+
+                //for(int i = 1; i <= TotalRowToAdd; i++)
+                //{
+                //    worksheet.Rows[i].Insert(Excel.XlInsertShiftDirection.xlShiftDown);
+                //}
+
+                //workbook.Save();
+                //workbook.Close();
+                //Marshal.ReleaseComObject(workbook);
+                //excelApp.Quit();
+                //Marshal.FinalReleaseComObject(excelApp);
+
+
+                using (ExcelPackage excelPackage = new ExcelPackage(new FileInfo(filePath)))
+                {
+                    ExcelWorkbook wb = excelPackage.Workbook;
+                    ExcelWorksheet individualWs = wb.Worksheets["Individual Stocks"];
+                    ExcelWorksheet stocksConsolidatedWs = wb.Worksheets["Stocks Consolidated"];
+
                     //Getting the cash row of the previous month and calculating the table also of the previous month in the individual sheet.
                     int cashRowPrevMonth = GetCashRowOfPrevTable(individualWs);
                     //Get the Value as on for the current month cash value .
@@ -410,12 +457,12 @@ namespace Stock_Report
                     //Convert all the fee and dividend,interet row values into profit and loss for profit and loss value of the cash row in the current month
                     profitDivideLoss = (dividendInterestAmount - FeeAmount) / 1000;
 
-                    int monthHeaderRows = 3;
-                    int totalHeaderLineItem = 1;
-                    int cashRow = 1;
-                    int totalSpacesRows = 2;
-                    int TotalRowToAdd = monthHeaderRows + Stocks.Count + BoughtStocks.Count + totalHeaderLineItem + SoldStocks.Count + totalHeaderLineItem + cashRow + totalHeaderLineItem + totalSpacesRows;
-                    individualWs.InsertRow(1, TotalRowToAdd);
+                    //int monthHeaderRows = 3;
+                    //int totalHeaderLineItem = 1;
+                    //int cashRow = 1;
+                    //int totalSpacesRows = 2;
+                    //int TotalRowToAdd = monthHeaderRows + Stocks.Count + BoughtStocks.Count + totalHeaderLineItem + SoldStocks.Count + totalHeaderLineItem + cashRow + totalHeaderLineItem + totalSpacesRows;
+                    //individualWs.InsertRow(1, TotalRowToAdd);
                     int headersRow = 3;
                     int insertingRow = 4;
                     int srNo = 1;
@@ -451,6 +498,7 @@ namespace Stock_Report
                     CreateConsolidatedSheet(stocksConsolidatedWs, currentDate, MainTableTuple, ConsolidateSheetLplValues, isNewYear);
                     excelPackage.SaveAs(targetPath);
                 }
+                
 
             }
             catch (Exception ex)
